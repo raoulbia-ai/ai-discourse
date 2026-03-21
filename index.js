@@ -7,7 +7,7 @@
  *
  * The public API is intentionally small and opinionated:
  *   createStore(dataDir)
- *   createInstitution(store)
+ *   createInstitution({ store })
  *   institution.registerAgent(agent)
  *   institution.openProceeding(opts)
  *   institution.submitIntervention(opts)
@@ -26,21 +26,28 @@ const { StateManager } = require('./runtime/state');
 /**
  * Create a discourse institution.
  *
- * @param {object} store - Storage backend from createStore()
- * @param {{ maxParallelAgents?: number }} [opts]
+ * @param {{ store: object, maxParallelAgents?: number }} opts
  * @returns {Institution}
  */
-function createInstitution(store, opts = {}) {
-  return new Institution(store, opts);
+function createInstitution(opts) {
+  // Support both createInstitution({ store }) and legacy createInstitution(store, opts)
+  if (opts && typeof opts.getProceedings !== 'function' && opts.store) {
+    return new Institution(opts);
+  }
+  // Legacy two-arg form: createInstitution(store, opts)
+  const store = opts;
+  const extraOpts = arguments[1] || {};
+  return new Institution({ store, ...extraOpts });
 }
 
 class Institution {
-  constructor(store, opts = {}) {
-    this._store = store;
-    this._engines = _createEngines(store);
+  constructor(opts) {
+    if (!opts.store) throw new Error('createInstitution requires { store }');
+    this._store = opts.store;
+    this._engines = _createEngines(opts.store);
     this._agents = new Map();
     this._maxParallel = opts.maxParallelAgents || 3;
-    this._stateManager = new StateManager(store);
+    this._stateManager = new StateManager(opts.store);
   }
 
   // ─── Core Operations (Public API) ───

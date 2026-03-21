@@ -21,7 +21,7 @@ const { createStore, createInstitution } = require('../index');
 
 const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'book-review-'));
 const store = createStore(dataDir);
-const institution = createInstitution(store);
+const institution = createInstitution({ store });
 
 // ─── Define Agents ───
 

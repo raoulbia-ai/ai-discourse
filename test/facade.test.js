@@ -19,7 +19,7 @@ let institution;
 beforeEach(() => {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'discourse-facade-'));
   const store = createStore(tmpDir);
-  institution = createInstitution(store);
+  institution = createInstitution({ store });
 });
 
 describe('Public Contract', () => {
@@ -33,19 +33,54 @@ describe('Public Contract', () => {
       assert.equal(institution.store, undefined);
     });
 
-    it('exposes only public methods', () => {
-      const publicMethods = [
-        'openProceeding', 'getProceeding', 'listProceedings', 'transitionProceeding',
-        'submitIntervention', 'listInterventions',
-        'getSynthesis', 'updateSynthesis',
+    it('exposes minimal runtime contract', () => {
+      // These 7 methods are the minimal contract — sufficient for any application
+      const minimal = [
+        'openProceeding', 'submitIntervention', 'getSynthesis',
+        'registerAgent', 'runCycle',
+        'listInterventions', 'ingestSignal',
+      ];
+      for (const method of minimal) {
+        assert.equal(typeof institution[method], 'function', `Missing minimal method: ${method}`);
+      }
+    });
+
+    it('exposes extended public API', () => {
+      // These are public and stable but not required for basic operation
+      const extended = [
+        'getProceeding', 'listProceedings', 'transitionProceeding',
+        'updateSynthesis',
         'createObligation', 'resolveObligation',
-        'registerAgent', 'getAgentIds', 'runCycle',
-        'ingestSignal', 'getAgenda', 'updateAttention',
+        'getAgentIds',
+        'getAgenda', 'updateAttention',
         'addRule', 'getHealth',
       ];
-      for (const method of publicMethods) {
-        assert.equal(typeof institution[method], 'function', `Missing public method: ${method}`);
+      for (const method of extended) {
+        assert.equal(typeof institution[method], 'function', `Missing extended method: ${method}`);
       }
+    });
+  });
+
+  describe('createInstitution signature', () => {
+    it('accepts { store } object form', () => {
+      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'discourse-sig-'));
+      const store = createStore(tmpDir);
+      const inst = createInstitution({ store });
+      assert.equal(typeof inst.openProceeding, 'function');
+    });
+
+    it('accepts { store, maxParallelAgents } form', () => {
+      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'discourse-sig-'));
+      const store = createStore(tmpDir);
+      const inst = createInstitution({ store, maxParallelAgents: 2 });
+      assert.equal(typeof inst.openProceeding, 'function');
+    });
+
+    it('supports legacy two-arg form', () => {
+      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'discourse-sig-'));
+      const store = createStore(tmpDir);
+      const inst = createInstitution(store);
+      assert.equal(typeof inst.openProceeding, 'function');
     });
   });
 
