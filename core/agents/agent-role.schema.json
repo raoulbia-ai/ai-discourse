@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AgentRole",
+  "description": "Defines a participant or steward in the institution — their capabilities, intervention rights, and reputation.",
+  "version": "0.1",
+  "type": "object",
+  "required": ["id", "kind", "capabilities", "intervention_rights"],
+  "properties": {
+    "id":   { "type": "string", "description": "Unique agent identifier (e.g. geographer, dissent-guardian)" },
+    "kind": {
+      "type": "string",
+      "enum": ["analytic", "stewardship", "synthesis", "infrastructure"],
+      "description": "Agent role category"
+    },
+    "capabilities": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "What this agent can do (e.g. interpret_geospatial_events, preserve_minority_positions)"
+    },
+    "intervention_rights": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Which intervention types this agent may submit"
+    },
+    "reputation": {
+      "type": ["object", "null"],
+      "properties": {
+        "reliability_score":           { "type": "number", "minimum": 0, "maximum": 1 },
+        "false_escalation_rate":       { "type": "number", "minimum": 0, "maximum": 1 },
+        "confirmed_contribution_rate": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "description": "Track record metrics (populated over time)"
+    }
+  }
+}

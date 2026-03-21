@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Signal",
+  "description": "An incoming observation entering the institution. Signals are raw intake — they do not encode institutional interpretation.",
+  "version": "0.1",
+  "type": "object",
+  "required": ["id", "type", "source", "timestamp", "title", "summary"],
+  "properties": {
+    "id":        { "type": "string", "description": "Unique signal identifier (e.g. sig_001)" },
+    "type":      { "type": "string", "description": "Signal type (e.g. event_report, measurement, alert, announcement)" },
+    "source":    { "type": "string", "description": "Origin system or feed identifier" },
+    "timestamp": { "type": "string", "format": "date-time", "description": "When the signal was observed or reported" },
+    "ingested_at": { "type": "string", "format": "date-time", "description": "When the signal entered the institution" },
+    "title":     { "type": "string", "description": "Human-readable signal title" },
+    "summary":   { "type": "string", "description": "Brief description of the observation" },
+    "payload":   { "type": "object", "description": "Source-specific structured data", "default": {} },
+    "location": {
+      "type": ["object", "null"],
+      "properties": {
+        "label":   { "type": "string" },
+        "lat":     { "type": ["number", "null"] },
+        "lon":     { "type": ["number", "null"] },
+        "country": { "type": ["string", "null"] },
+        "region":  { "type": ["string", "null"] }
+      }
+    },
+    "reliability": { "type": ["number", "null"], "minimum": 0, "maximum": 1, "description": "Source reliability score" },
+    "tags":      { "type": "array", "items": { "type": "string" }, "default": [] }
+  }
+}

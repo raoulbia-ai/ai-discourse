@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Proceeding",
+  "description": "A persistent matter under collective examination. The central unit of institutional inquiry.",
+  "version": "0.1",
+  "type": "object",
+  "required": ["id", "title", "status", "created_at", "opened_by"],
+  "properties": {
+    "id":         { "type": "string", "description": "Unique proceeding identifier (e.g. proc_001)" },
+    "title":      { "type": "string", "description": "Human-readable proceeding title" },
+    "status": {
+      "type": "string",
+      "enum": [
+        "noticed",
+        "opened",
+        "framed",
+        "under_examination",
+        "contested",
+        "awaiting_evidence",
+        "provisionally_synthesized",
+        "stable",
+        "dormant",
+        "settled",
+        "archived",
+        "reopened",
+        "retired"
+      ],
+      "description": "Current procedural state"
+    },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "opened_by":  { "type": "string", "description": "Agent or system that opened the proceeding" },
+    "framing": {
+      "type": ["object", "null"],
+      "properties": {
+        "primary_question":  { "type": "string" },
+        "posture":           { "type": "string" },
+        "in_scope":          { "type": "array", "items": { "type": "string" } },
+        "out_of_scope":      { "type": "array", "items": { "type": "string" } },
+        "time_horizon":      { "type": ["string", "null"] },
+        "geographic_scope":  { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "signal_ids":             { "type": "array", "items": { "type": "string" }, "default": [] },
+    "current_synthesis_id":   { "type": ["string", "null"], "default": null },
+    "active_obligation_ids":  { "type": "array", "items": { "type": "string" }, "default": [] },
+    "precedent_links":        { "type": "array", "items": { "type": "string" }, "default": [] },
+    "attention": {
+      "type": ["object", "null"],
+      "properties": {
+        "priority": { "type": "number", "minimum": 0, "maximum": 1 },
+        "urgency":  { "type": "number", "minimum": 0, "maximum": 1 },
+        "novelty":  { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "dissent_status": {
+      "type": "string",
+      "enum": ["none", "present", "protected"],
+      "default": "none"
+    },
+    "closure_record_id": { "type": ["string", "null"], "default": null },
+    "meta": {
+      "type": ["object", "null"],
+      "properties": {
+        "split_from":  { "type": ["string", "null"] },
+        "merged_from": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

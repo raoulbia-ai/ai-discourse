@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Synthesis",
+  "description": "A proceeding's current institutional reading. Versioned over time — each update creates a new version.",
+  "version": "0.1",
+  "type": "object",
+  "required": ["id", "proceeding_id", "version", "created_at", "updated_by", "primary_reading"],
+  "properties": {
+    "id":              { "type": "string", "description": "Unique synthesis identifier (e.g. syn_001)" },
+    "proceeding_id":   { "type": "string", "description": "The proceeding this synthesis belongs to" },
+    "version":         { "type": "integer", "minimum": 1, "description": "Synthesis version number" },
+    "created_at":      { "type": "string", "format": "date-time" },
+    "updated_by":      { "type": "string", "description": "Agent that produced this synthesis" },
+    "state_basis": {
+      "type": "string",
+      "enum": ["initial", "provisional", "stable", "contested", "final"],
+      "description": "Basis for the synthesis state"
+    },
+    "primary_reading": { "type": "string", "description": "The institution's main interpretation" },
+    "supporting_points": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": [],
+      "description": "Evidence and reasoning supporting the primary reading"
+    },
+    "uncertainties": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": [],
+      "description": "Known unknowns and areas of uncertainty"
+    },
+    "preserved_dissent": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label":   { "type": "string" },
+          "summary": { "type": "string" }
+        },
+        "required": ["label", "summary"]
+      },
+      "default": [],
+      "description": "Minority positions that remain coherent and worth preserving"
+    },
+    "recommended_attention": {
+      "type": ["string", "null"],
+      "enum": ["low", "medium", "high", "critical", null]
+    },
+    "recommended_state": {
+      "type": ["string", "null"],
+      "description": "Suggested proceeding state based on this synthesis"
+    }
+  }
+}

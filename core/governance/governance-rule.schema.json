@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GovernanceRule",
+  "description": "Constitutional logic that constrains valid institutional actions. Governance should not remain implicit in prompts only.",
+  "version": "0.1",
+  "type": "object",
+  "required": ["id", "name", "category", "description", "enforcement", "version"],
+  "properties": {
+    "id":          { "type": "string", "description": "Unique rule identifier (e.g. rule_014)" },
+    "name":        { "type": "string", "description": "Human-readable rule name" },
+    "category": {
+      "type": "string",
+      "enum": ["intervention_validity", "obligation_policy", "attention_policy", "settlement_policy", "dissent_protection", "rate_discipline"],
+      "description": "Rule category"
+    },
+    "description": { "type": "string", "description": "What this rule enforces" },
+    "applies_to": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": [],
+      "description": "Intervention types or operations this rule applies to"
+    },
+    "enforcement": {
+      "type": "object",
+      "required": ["mode", "message"],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["hard_block", "soft_warning", "audit_only"],
+          "description": "How strictly the rule is enforced"
+        },
+        "message": { "type": "string", "description": "Message shown when rule is triggered" }
+      }
+    },
+    "version":    { "type": "integer", "minimum": 1 },
+    "created_at": { "type": "string", "format": "date-time" },
+    "amended_at": { "type": ["string", "null"], "format": "date-time" }
+  }
+}

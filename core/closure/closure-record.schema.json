@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ClosureRecord",
+  "description": "Settlement record for a proceeding. Closure is always inspectable — it captures what was decided, what remains uncertain, and when to reopen.",
+  "version": "0.1",
+  "type": "object",
+  "required": ["id", "proceeding_id", "closure_type", "closed_at", "closed_by", "final_synthesis_id", "rationale"],
+  "properties": {
+    "id":                 { "type": "string", "description": "Unique closure record identifier (e.g. close_001)" },
+    "proceeding_id":      { "type": "string", "description": "The proceeding being closed" },
+    "closure_type": {
+      "type": "string",
+      "enum": ["provisional_settlement", "full_settlement", "retired", "merged"],
+      "description": "How the proceeding was closed"
+    },
+    "closed_at":          { "type": "string", "format": "date-time" },
+    "closed_by":          { "type": "string", "description": "Agent or steward that closed the proceeding" },
+    "final_synthesis_id": { "type": "string", "description": "Reference to the final synthesis version" },
+    "residual_uncertainties": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": [],
+      "description": "Uncertainties that remain at closure"
+    },
+    "preserved_dissent": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label":   { "type": "string" },
+          "summary": { "type": "string" }
+        },
+        "required": ["label", "summary"]
+      },
+      "default": []
+    },
+    "reopening_conditions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": [],
+      "description": "Conditions under which this proceeding should be reopened"
+    },
+    "rationale": { "type": "string", "description": "Why the proceeding was closed" }
+  }
+}

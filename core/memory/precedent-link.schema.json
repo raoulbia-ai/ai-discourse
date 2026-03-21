@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PrecedentLink",
+  "description": "A lightweight link between proceedings for institutional memory. Simple, inspectable references — not a sprawling ontology.",
+  "version": "0.1",
+  "type": "object",
+  "required": ["id", "source_proceeding_id", "target_proceeding_id", "relation", "summary"],
+  "properties": {
+    "id":                     { "type": "string", "description": "Unique precedent link identifier (e.g. prec_004)" },
+    "source_proceeding_id":   { "type": "string", "description": "The earlier proceeding providing precedent" },
+    "target_proceeding_id":   { "type": "string", "description": "The current proceeding referencing precedent" },
+    "relation": {
+      "type": "string",
+      "enum": ["historical_analog", "causal_predecessor", "thematic_overlap", "contradicts", "supersedes"],
+      "description": "Nature of the relationship"
+    },
+    "summary": { "type": "string", "description": "Why this precedent is relevant" },
+    "weight":  { "type": ["number", "null"], "minimum": 0, "maximum": 1, "description": "Relevance weight" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "created_by": { "type": ["string", "null"], "description": "Agent that established this link" }
+  }
+}

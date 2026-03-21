@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Intervention",
+  "description": "A typed procedural act submitted by an agent within a proceeding. Agents do not communicate directly — they submit interventions.",
+  "version": "0.1",
+  "type": "object",
+  "required": ["id", "proceeding_id", "type", "agent_id", "created_at", "summary", "content"],
+  "properties": {
+    "id":             { "type": "string", "description": "Unique intervention identifier (e.g. int_001)" },
+    "proceeding_id":  { "type": "string", "description": "The proceeding this intervention belongs to" },
+    "type": {
+      "type": "string",
+      "enum": [
+        "interpret",
+        "challenge",
+        "introduce_evidence",
+        "request_verification",
+        "propose_framing",
+        "narrow_scope",
+        "widen_scope",
+        "split_proceeding",
+        "merge_proceedings",
+        "escalate",
+        "defer",
+        "synthesize",
+        "propose_settlement",
+        "reopen",
+        "agreement",
+        "revision"
+      ],
+      "description": "The procedural type of this intervention"
+    },
+    "agent_id":   { "type": "string", "description": "The agent submitting the intervention" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "summary":    { "type": "string", "description": "Brief summary of the intervention" },
+    "content":    { "type": "string", "description": "Full intervention text or structured payload" },
+    "targets":    { "type": "array", "items": { "type": "string" }, "default": [], "description": "IDs of interventions this responds to" },
+    "grounds": {
+      "type": ["object", "null"],
+      "properties": {
+        "signal_ids":     { "type": "array", "items": { "type": "string" } },
+        "precedent_ids":  { "type": "array", "items": { "type": "string" } },
+        "evidence_refs":  { "type": "array", "items": { "type": "string" } }
+      },
+      "description": "Evidence and references supporting this intervention"
+    },
+    "confidence": { "type": ["number", "null"], "minimum": 0, "maximum": 1, "description": "Agent's confidence in this intervention" },
+    "legitimacy": {
+      "type": ["object", "null"],
+      "properties": {
+        "grounded":             { "type": "boolean" },
+        "corroboration_state":  { "type": "string", "enum": ["unverified", "corroborated", "contested"] },
+        "procedural_validity":  { "type": "string", "enum": ["valid", "invalid", "pending_review"] }
+      }
+    },
+    "effects": {
+      "type": ["object", "null"],
+      "properties": {
+        "proposed_state_change":     { "type": ["string", "null"] },
+        "proposed_attention_change": { "type": ["object", "null"] },
+        "proposed_obligation_ids":   { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}
