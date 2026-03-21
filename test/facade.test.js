@@ -1,5 +1,12 @@
 'use strict';
 
+/**
+ * Public Contract Tests — uses ONLY the public facade API.
+ * No access to institution.engines, institution.store, or internal modules.
+ *
+ * If a test can't be written without internals, the public API is missing something.
+ */
+
 const { describe, it, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs');
@@ -15,20 +22,30 @@ beforeEach(() => {
   institution = createInstitution(store);
 });
 
-describe('Public Facade', () => {
+describe('Public Contract', () => {
 
-  describe('createInstitution', () => {
-    it('returns institution with public API methods', () => {
-      assert.equal(typeof institution.openProceeding, 'function');
-      assert.equal(typeof institution.submitIntervention, 'function');
-      assert.equal(typeof institution.getSynthesis, 'function');
-      assert.equal(typeof institution.registerAgent, 'function');
-      assert.equal(typeof institution.runCycle, 'function');
-      assert.equal(typeof institution.getProceeding, 'function');
-      assert.equal(typeof institution.listProceedings, 'function');
-      assert.equal(typeof institution.ingestSignal, 'function');
-      assert.equal(typeof institution.getAgenda, 'function');
-      assert.equal(typeof institution.getHealth, 'function');
+  describe('surface is sealed', () => {
+    it('does not expose engines', () => {
+      assert.equal(institution.engines, undefined);
+    });
+
+    it('does not expose store', () => {
+      assert.equal(institution.store, undefined);
+    });
+
+    it('exposes only public methods', () => {
+      const publicMethods = [
+        'openProceeding', 'getProceeding', 'listProceedings', 'transitionProceeding',
+        'submitIntervention', 'listInterventions',
+        'getSynthesis', 'updateSynthesis',
+        'createObligation', 'resolveObligation',
+        'registerAgent', 'getAgentIds', 'runCycle',
+        'ingestSignal', 'getAgenda', 'updateAttention',
+        'addRule', 'getHealth',
+      ];
+      for (const method of publicMethods) {
+        assert.equal(typeof institution[method], 'function', `Missing public method: ${method}`);
+      }
     });
   });
 
@@ -47,12 +64,54 @@ describe('Public Facade', () => {
       });
       assert.equal(proc.framing.primary_question, 'What happened?');
     });
+
+    it('rejects duplicate titles', () => {
+      institution.openProceeding({ title: 'Unique Topic' });
+      assert.throws(
+        () => institution.openProceeding({ title: 'Unique Topic' }),
+        /too similar/
+      );
+    });
   });
 
-  describe('submitIntervention', () => {
-    it('submits through public API', () => {
+  describe('getProceeding + listProceedings', () => {
+    it('retrieves by ID', () => {
+      const proc = institution.openProceeding({ title: 'Retrieve Test' });
+      const found = institution.getProceeding(proc.id);
+      assert.equal(found.title, 'Retrieve Test');
+    });
+
+    it('lists with status filter', () => {
+      institution.openProceeding({ title: 'Chile Earthquake' });
+      const p2 = institution.openProceeding({ title: 'Sudan Conflict' });
+      institution.transitionProceeding(p2.id, 'under_examination');
+
+      assert.equal(institution.listProceedings({ status: 'opened' }).length, 1);
+      assert.equal(institution.listProceedings({ status: 'under_examination' }).length, 1);
+      assert.equal(institution.listProceedings().length, 2);
+    });
+  });
+
+  describe('transitionProceeding', () => {
+    it('transitions through valid states', () => {
+      const proc = institution.openProceeding({ title: 'Transition Test' });
+      const updated = institution.transitionProceeding(proc.id, 'under_examination');
+      assert.equal(updated.status, 'under_examination');
+    });
+
+    it('rejects invalid transitions', () => {
+      const proc = institution.openProceeding({ title: 'Bad Transition' });
+      assert.throws(
+        () => institution.transitionProceeding(proc.id, 'settled'),
+        /Cannot transition/
+      );
+    });
+  });
+
+  describe('submitIntervention + listInterventions', () => {
+    it('submits and lists', () => {
       const proc = institution.openProceeding({ title: 'Intervention Test' });
-      const int = institution.submitIntervention({
+      institution.submitIntervention({
         proceeding_id: proc.id,
         type: 'introduce_evidence',
         agent_id: 'tester',
@@ -60,8 +119,25 @@ describe('Public Facade', () => {
         content: 'Details.',
         grounds: { evidence_refs: ['test_ref'] },
       });
-      assert.equal(int.type, 'introduce_evidence');
-      assert.equal(int.agent_id, 'tester');
+
+      const list = institution.listInterventions(proc.id);
+      assert.equal(list.length, 1);
+      assert.equal(list[0].agent_id, 'tester');
+      assert.equal(list[0].type, 'introduce_evidence');
+    });
+
+    it('filters by agent_id', () => {
+      const proc = institution.openProceeding({ title: 'Filter Test' });
+      institution.submitIntervention({
+        proceeding_id: proc.id, type: 'introduce_evidence', agent_id: 'a1',
+        summary: 's', content: 'c', grounds: { evidence_refs: ['r1'] },
+      });
+      institution.submitIntervention({
+        proceeding_id: proc.id, type: 'introduce_evidence', agent_id: 'a2',
+        summary: 's', content: 'c', grounds: { evidence_refs: ['r2'] },
+      });
+
+      assert.equal(institution.listInterventions(proc.id, { agent_id: 'a1' }).length, 1);
     });
 
     it('enforces governance rules', () => {
@@ -84,7 +160,7 @@ describe('Public Facade', () => {
     });
   });
 
-  describe('getSynthesis', () => {
+  describe('getSynthesis + updateSynthesis', () => {
     it('returns null when no synthesis exists', () => {
       assert.equal(institution.getSynthesis('nonexistent'), null);
     });
@@ -96,9 +172,14 @@ describe('Public Facade', () => {
         updated_by: 'chronicler',
         primary_reading: 'First reading.',
       });
+      institution.updateSynthesis({
+        proceeding_id: proc.id,
+        updated_by: 'chronicler',
+        primary_reading: 'Revised reading.',
+      });
       const syn = institution.getSynthesis(proc.id);
-      assert.equal(syn.version, 1);
-      assert.equal(syn.primary_reading, 'First reading.');
+      assert.equal(syn.version, 2);
+      assert.equal(syn.primary_reading, 'Revised reading.');
     });
   });
 
@@ -110,6 +191,41 @@ describe('Public Facade', () => {
       });
       assert.ok(sig.id.startsWith('sig_'));
       assert.ok(sig.ingested_at);
+    });
+  });
+
+  describe('createObligation + resolveObligation', () => {
+    it('creates and resolves', () => {
+      const proc = institution.openProceeding({ title: 'Obligation Test' });
+      const obl = institution.createObligation({
+        proceeding_id: proc.id,
+        assigned_agent_id: 'analyst',
+        description: 'Check data.',
+      });
+      assert.equal(obl.status, 'open');
+
+      const resolved = institution.resolveObligation(obl.id, 'answered');
+      assert.equal(resolved.status, 'answered');
+    });
+  });
+
+  describe('updateAttention + getAgenda', () => {
+    it('ranks proceedings by priority', () => {
+      const p1 = institution.openProceeding({ title: 'Low Priority Issue' });
+      const p2 = institution.openProceeding({ title: 'High Priority Crisis' });
+      institution.updateAttention(p1.id, { priority: 0.2 });
+      institution.updateAttention(p2.id, { priority: 0.9 });
+
+      const agenda = institution.getAgenda();
+      assert.equal(agenda[0].id, p2.id);
+    });
+  });
+
+  describe('getHealth', () => {
+    it('returns discourse health', () => {
+      const health = institution.getHealth();
+      assert.equal(typeof health.discourse_ratio, 'number');
+      assert.ok(['healthy', 'weak', 'very_weak'].includes(health.discourse_health));
     });
   });
 
@@ -148,53 +264,52 @@ describe('Public Facade', () => {
       });
 
       const result = await institution.runCycle();
-      assert.equal(result.cycle_id, 1);
 
-      // Verify intervention was recorded
-      const interventions = institution.engines.interventions.forProceeding(proc.id);
+      // Public summary — no internal phases/waves
+      assert.equal(result.cycle_id, 1);
+      assert.ok(result.started_at);
+      assert.ok(result.ended_at);
+      assert.equal(result.agents['test-agent'], 'acted');
+      assert.equal(result.interventions_submitted, 1);
+      assert.equal(result.obligations_created, 0);
+      assert.deepEqual(result.errors, []);
+
+      // Verify via public API
+      const interventions = institution.listInterventions(proc.id);
       assert.equal(interventions.length, 1);
       assert.equal(interventions[0].agent_id, 'test-agent');
+    });
+
+    it('returns stable summary with multiple agents', async () => {
+      const proc = institution.openProceeding({ title: 'Multi Agent' });
+      const noop = { id: 'noop', evaluate: async () => ({ interventions: [], obligations: [] }) };
+      const actor = {
+        id: 'actor',
+        evaluate: async () => ({
+          interventions: [{
+            proceeding_id: proc.id, type: 'introduce_evidence', summary: 's', content: 'c',
+            grounds: { evidence_refs: ['r1'] },
+          }],
+          obligations: [{
+            proceeding_id: proc.id, assigned_agent_id: 'noop', description: 'do something',
+          }],
+        }),
+      };
+
+      institution.registerAgent(noop);
+      institution.registerAgent(actor);
+
+      const result = await institution.runCycle();
+      assert.equal(result.agents.noop, 'acted');
+      assert.equal(result.agents.actor, 'acted');
+      assert.equal(result.interventions_submitted, 1);
+      assert.equal(result.obligations_created, 1);
     });
 
     it('getAgentIds returns registered agents', () => {
       institution.registerAgent({ id: 'a1', evaluate: async () => ({ interventions: [], obligations: [] }) });
       institution.registerAgent({ id: 'a2', evaluate: async () => ({ interventions: [], obligations: [] }) });
       assert.deepEqual(institution.getAgentIds(), ['a1', 'a2']);
-    });
-  });
-
-  describe('obligations through facade', () => {
-    it('creates and resolves', () => {
-      const proc = institution.openProceeding({ title: 'Obligation Test' });
-      const obl = institution.createObligation({
-        proceeding_id: proc.id,
-        assigned_agent_id: 'analyst',
-        description: 'Check data.',
-      });
-      assert.equal(obl.status, 'open');
-
-      const resolved = institution.resolveObligation(obl.id, 'answered');
-      assert.equal(resolved.status, 'answered');
-    });
-  });
-
-  describe('getAgenda', () => {
-    it('returns ranked proceedings', () => {
-      const p1 = institution.openProceeding({ title: 'Low Priority' });
-      const p2 = institution.openProceeding({ title: 'High Priority' });
-      institution.engines.proceedings.updateAttention(p1.id, { priority: 0.2 });
-      institution.engines.proceedings.updateAttention(p2.id, { priority: 0.9 });
-
-      const agenda = institution.getAgenda();
-      assert.equal(agenda[0].id, p2.id);
-    });
-  });
-
-  describe('getHealth', () => {
-    it('returns discourse health', () => {
-      const health = institution.getHealth();
-      assert.equal(typeof health.discourse_ratio, 'number');
-      assert.ok(['healthy', 'weak', 'very_weak'].includes(health.discourse_health));
     });
   });
 });

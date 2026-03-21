@@ -158,12 +158,12 @@ async function main() {
   for (let cycle = 1; cycle <= 3; cycle++) {
     console.log(`--- Cycle ${cycle} ---`);
     const result = await institution.runCycle();
-    const acted = result.phases[0].waves[0].results.filter(r => r.result === 'acted');
-    console.log(`  ${acted.length} agent(s) acted\n`);
+    const acted = Object.values(result.agents).filter(r => r === 'acted').length;
+    console.log(`  ${acted} agent(s) acted, ${result.interventions_submitted} intervention(s)\n`);
   }
 
-  // Check the discourse
-  const interventions = institution.engines.interventions.forProceeding(proc.id);
+  // Check the discourse — using only public API
+  const interventions = institution.listInterventions(proc.id);
   console.log(`Total interventions: ${interventions.length}`);
   for (const int of interventions) {
     console.log(`  [${int.agent_id}] ${int.type}: ${int.summary}`);

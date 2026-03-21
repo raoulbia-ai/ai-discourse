@@ -151,6 +151,36 @@ class Institution {
     return this._engines.governance.analyzeHealth();
   }
 
+  /**
+   * List interventions for a proceeding.
+   * @param {string} proceedingId
+   * @param {{ agent_id?: string, type?: string, limit?: number }} [filters]
+   */
+  listInterventions(proceedingId, filters = {}) {
+    return this._engines.interventions.list({
+      proceeding_id: proceedingId,
+      ...filters,
+    });
+  }
+
+  /**
+   * Update attention scores for a proceeding.
+   * @param {string} proceedingId
+   * @param {{ priority?: number, urgency?: number, novelty?: number }} attention
+   */
+  updateAttention(proceedingId, attention) {
+    return this._engines.proceedings.updateAttention(proceedingId, attention);
+  }
+
+  /**
+   * Transition a proceeding to a new state.
+   * @param {string} proceedingId
+   * @param {string} newStatus
+   */
+  transitionProceeding(proceedingId, newStatus) {
+    return this._engines.proceedings.transition(proceedingId, newStatus);
+  }
+
   // ─── Agent Registration ───
 
   /**
@@ -197,9 +227,17 @@ class Institution {
 
     const runner = new CycleRunner(this._engines, this._store, config);
 
+    const agentResults = {};
+    let interventionCount = 0;
+    let obligationCount = 0;
+    const errors = [];
+
     const result = await runner.runCycle(async (agentId) => {
       const agent = this._agents.get(agentId);
-      if (!agent) return 'unknown_agent';
+      if (!agent) {
+        agentResults[agentId] = 'unknown_agent';
+        return 'unknown_agent';
+      }
 
       // Build context for agent
       const rt = new AgentRuntime(agentId, this._engines, this._store);
@@ -213,8 +251,9 @@ class Institution {
         for (const int of response.interventions) {
           try {
             this.submitIntervention({ ...int, agent_id: agentId });
+            interventionCount++;
           } catch (e) {
-            // Non-fatal — log but continue
+            errors.push({ agent_id: agentId, error: e.message });
           }
         }
       }
@@ -224,26 +263,30 @@ class Institution {
         for (const obl of response.obligations) {
           try {
             this.createObligation({ ...obl });
+            obligationCount++;
           } catch (e) {
-            // Non-fatal
+            errors.push({ agent_id: agentId, error: e.message });
           }
         }
       }
 
       // Record run
       rt.recordRun('acted');
+      agentResults[agentId] = 'acted';
       return 'acted';
     }, opts);
 
-    return result;
+    // Return stable public summary — no internal phases/waves structure
+    return {
+      cycle_id: result.cycle_id,
+      started_at: result.started_at,
+      ended_at: result.ended_at,
+      agents: agentResults,
+      interventions_submitted: interventionCount,
+      obligations_created: obligationCount,
+      errors,
+    };
   }
-
-  // ─── Internal Access (unstable — do not depend on) ───
-
-  /** @internal */
-  get engines() { return this._engines; }
-  /** @internal */
-  get store() { return this._store; }
 }
 
 module.exports = { createStore, createInstitution, Institution };
