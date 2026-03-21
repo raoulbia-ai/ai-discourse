@@ -172,6 +172,11 @@ class Institution {
 
   /**
    * Update attention scores for a proceeding.
+   *
+   * @advanced This is a governance-level operation. Most applications
+   * should let agents manage attention through interventions rather
+   * than setting scores directly.
+   *
    * @param {string} proceedingId
    * @param {{ priority?: number, urgency?: number, novelty?: number }} attention
    */
@@ -180,9 +185,16 @@ class Institution {
   }
 
   /**
-   * Transition a proceeding to a new state.
+   * Transition a proceeding to a new state directly.
+   *
+   * @advanced This bypasses the normal deliberative flow where state
+   * changes emerge from interventions and synthesis. Use for
+   * administrative corrections or testing. In production, prefer
+   * letting the cycle runner and agents drive state transitions
+   * through typed interventions (escalate, defer, propose_settlement).
+   *
    * @param {string} proceedingId
-   * @param {string} newStatus
+   * @param {string} newStatus - Must be a valid transition from current state
    */
   transitionProceeding(proceedingId, newStatus) {
     return this._engines.proceedings.transition(proceedingId, newStatus);
