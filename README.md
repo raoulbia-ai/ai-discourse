@@ -1,8 +1,10 @@
 # AI Discourse Infrastructure
 
-Open infrastructure for persistent machine deliberation.
+A framework for AI systems that reason over time instead of answering once.
 
-AI agents that **keep thinking over time**, not just answer once. Multiple perspectives, structured disagreement, evolving synthesis.
+Chat gives answers. This system investigates.
+
+---
 
 ## Quick Start
 
@@ -12,13 +14,76 @@ npm install
 node examples/quickstart.js
 ```
 
-Output:
-
 ```
+=== AI Discourse Infrastructure — Quickstart ===
 Proceeding: Sample Inquiry
 Cycle: 1 | Agents: 1 | Interventions: 1
 Synthesis (v1): The analyst identified this as worthy of examination.
 ```
+
+---
+
+## How This Is Different
+
+| | Chat AI | This Framework |
+|---|---------|---------------|
+| Answers | Once | Evolves over multiple cycles |
+| Perspectives | One | Multiple agents, different lenses |
+| Disagreement | Not possible | Structured challenges with evidence |
+| Memory | Stateless | Persistent proceedings with history |
+| Output | First response = final | Versioned synthesis with uncertainty |
+
+---
+
+## What Happens When You Run This
+
+1. Agents analyze the problem from different perspectives
+2. They challenge each other's hypotheses with evidence
+3. New interpretations emerge from the disagreement
+4. The system updates its institutional understanding (synthesis)
+
+This repeats across cycles. Understanding evolves — it doesn't just appear.
+
+---
+
+## Examples
+
+| Example | Agents | What it demonstrates |
+|---------|--------|---------------------|
+| `quickstart.js` | 1 | Minimal loop — start here for basics |
+| `bug-triage.js` | 3 | Software bug diagnosis with challenge |
+| `research-note.js` | 2 | Paper comparison with challenge |
+| `incident-triage.js` | 2 | Ops incident response |
+| `book-review.js` | 3 | Literary deliberation |
+| `llm-research-note.js` | 2 | LLM-powered paper comparison |
+| **`llm-incident-reasoning.js`** | **3** | **LLM-powered incident investigation — start here for LLM** |
+
+Deterministic examples need no LLM. LLM examples need an OpenAI-compatible endpoint (vLLM, Ollama, OpenAI).
+
+---
+
+## LLM Integration
+
+Your existing LLM call goes here:
+
+```javascript
+import { createLLMAgent } from './infra/adapters/index.js'
+
+const agent = createLLMAgent({
+  id: 'analyst',
+  baseUrl: 'http://127.0.0.1:8000/v1',  // vLLM, Ollama, OpenAI, etc.
+  model: 'local-vllm',
+  systemPrompt: 'You are an analyst who...'
+})
+
+institution.registerAgent(agent)
+```
+
+The framework doesn't touch your LLM. Your LLM plugs into the agent, not into the framework.
+
+See the [full integration guide](../docs/integration/how-to-plug-into-your-existing-ai-stack.md) for before/after examples and a 20-line working template.
+
+---
 
 ## How It Works
 
@@ -60,59 +125,16 @@ institution.updateSynthesis({
 const synthesis = institution.getSynthesis(proc.id)
 ```
 
-## Examples
-
-| Example | Agents | What it demonstrates |
-|---------|--------|---------------------|
-| `quickstart.js` | 1 | Minimal loop — **start here** |
-| `book-review.js` | 3 | Literary deliberation with challenge |
-| `bug-triage.js` | 3 | Software bug diagnosis |
-| `research-note.js` | 2 | Paper comparison with challenge |
-| `incident-triage.js` | 2 | Ops incident response |
-| `llm-research-note.js` | 2 | LLM-powered paper comparison |
-| `llm-incident-reasoning.js` | 3 | LLM-powered incident investigation |
-
-Deterministic examples require no LLM. LLM examples require an OpenAI-compatible endpoint (vLLM, Ollama, OpenAI).
-
-## LLM Integration
-
-Plug in any OpenAI-compatible API:
-
-```javascript
-import { createLLMAgent } from './infra/adapters/index.js'
-
-const agent = createLLMAgent({
-  id: 'analyst',
-  baseUrl: 'http://127.0.0.1:8000/v1',  // vLLM, Ollama, OpenAI, etc.
-  model: 'local-vllm',
-  systemPrompt: 'You are an analyst who...'
-})
-
-institution.registerAgent(agent)
-```
-
-See [docs/integration/how-to-plug-into-your-existing-ai-stack.md](../docs/integration/how-to-plug-into-your-existing-ai-stack.md) for the full integration guide.
-
-## Why Not Just Chat?
-
-Chat gives you one answer, once. This system gives you:
-
-- **Multiple agents** with different perspectives
-- **Multiple cycles** where agents respond to each other
-- **Structured disagreement** (typed challenges with evidence)
-- **Evolving synthesis** with preserved uncertainty
-
-See [docs/demo/incident-reasoning-demo-narrative.md](../docs/demo/incident-reasoning-demo-narrative.md) for a concrete comparison.
+---
 
 ## Documentation
 
 | Doc | Purpose |
 |-----|---------|
-| [Integration Guide](../docs/integration/how-to-plug-into-your-existing-ai-stack.md) | How to plug this into your existing AI stack |
-| [Demo Narrative](../docs/demo/incident-reasoning-demo-narrative.md) | Why this is different from chat — with real output |
+| [Integration Guide](../docs/integration/how-to-plug-into-your-existing-ai-stack.md) | Plug this into your existing AI stack |
+| [Demo Narrative](../docs/demo/incident-reasoning-demo-narrative.md) | Why this is different from chat — with real LLM output |
 | [Demo Script](../docs/demo/incident-reasoning-demo-script.md) | Live walkthrough script |
-| [Public Surface](../docs/ai-discourse-framework/implementation/20260321_ai-discourse-infrastructure-public-framework-surface-v0.1.md) | Full public API reference |
-| [Surface Classification](../docs/ai-discourse-framework/implementation/20260321_surface-classification.md) | What's core vs. extended vs. internal |
+| [Public API Reference](../docs/ai-discourse-framework/implementation/20260321_ai-discourse-infrastructure-public-framework-surface-v0.1.md) | Full public surface spec |
 
 ## Tests
 
@@ -120,10 +142,13 @@ See [docs/demo/incident-reasoning-demo-narrative.md](../docs/demo/incident-reaso
 npm test    # 147 tests
 ```
 
+---
+
 ## What This Is Not
 
 - Not a chatbot framework
 - Not a workflow engine
 - Not a task automation system
+- Not AGI
 
-It is: **a structured multi-agent reasoning system for problems where understanding evolves over time.**
+It is a structured reasoning system for problems where understanding evolves over time.
