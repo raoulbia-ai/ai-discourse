@@ -2,7 +2,7 @@
 
 A framework for multi-agent reasoning that persists and continues — not single-shot answers, not task automation.
 
-Multiple AI agents investigate a problem across cycles. They interpret, challenge each other with evidence, and produce a shared synthesis that updates as understanding changes. State is persisted, so an investigation can resume later with new evidence instead of restarting from scratch. The system doesn't just accumulate context — it can revise prior conclusions when new evidence arrives. The first hypothesis is rarely the final one.
+Multiple AI agents investigate a problem across cycles. They interpret, challenge each other with evidence, and produce a shared synthesis that updates as understanding changes. State is persisted, so an investigation can resume later with new evidence instead of restarting from scratch. The system doesn't just accumulate context — it supports revision of prior conclusions when new evidence arrives, provided agents are prompted to consider revising their earlier positions. The first hypothesis is rarely the final one.
 
 > **Status:** Experimental. Working, tested, and usable — but not production-hardened. Feedback welcome.
 
