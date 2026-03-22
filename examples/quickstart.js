@@ -4,8 +4,15 @@
 /**
  * Quickstart — the smallest possible AI Discourse Infrastructure example.
  *
- * Demonstrates the complete framework loop:
- *   store → institution → agent → proceeding → cycle → synthesis
+ * Demonstrates the canonical first-use loop:
+ *
+ *   store → institution → registerAgent → openProceeding
+ *     → runCycle → updateSynthesis → getSynthesis
+ *
+ * Synthesis is an explicit step because it represents the institution's
+ * considered reading — not an automatic summary. In a real system, a
+ * designated synthesizer agent would produce it. Here we do it manually
+ * to show the complete loop.
  *
  * Usage: node examples/quickstart.js
  */
@@ -19,13 +26,12 @@ const { createStore, createInstitution } = require('../index');
 const store = createStore(fs.mkdtempSync(path.join(os.tmpdir(), 'quickstart-')));
 const institution = createInstitution({ store });
 
-// 2. Register one deterministic agent
+// 2. Register a deterministic agent
 institution.registerAgent({
   id: 'analyst',
   async evaluate(context) {
     const interventions = [];
     for (const proc of context.proceedings) {
-      // Skip if already contributed
       const mine = context.recent_interventions.filter(
         i => i.proceeding_id === proc.id && i.agent_id === 'analyst'
       );
@@ -44,16 +50,17 @@ institution.registerAgent({
   },
 });
 
-// 3. Open one proceeding and run one cycle
+// 3. Open a proceeding
 async function main() {
   const proc = institution.openProceeding({
     title: 'Sample Inquiry',
     framing: { primary_question: 'What should the institution examine?' },
   });
 
+  // 4. Run a deliberation cycle (agents evaluate and submit interventions)
   const result = await institution.runCycle();
 
-  // 4. Produce and print synthesis
+  // 5. Produce synthesis (explicit — synthesis is a deliberate institutional act)
   institution.updateSynthesis({
     proceeding_id: proc.id,
     updated_by: 'system',
@@ -62,13 +69,14 @@ async function main() {
     uncertainties: ['No challenges yet — single-agent assessment'],
   });
 
+  // 6. Read the synthesis
   const synthesis = institution.getSynthesis(proc.id);
 
   console.log('=== AI Discourse Infrastructure — Quickstart ===');
   console.log(`Proceeding: ${proc.title}`);
   console.log(`Cycle: ${result.cycle_id} | Agents: ${Object.keys(result.agents).length} | Interventions: ${result.interventions_submitted}`);
   console.log(`Synthesis (v${synthesis.version}): ${synthesis.primary_reading}`);
-  console.log('Done.');
+  console.log('\nCanonical loop: store → institution → registerAgent → openProceeding → runCycle → updateSynthesis → getSynthesis');
 }
 
 main().catch(console.error);

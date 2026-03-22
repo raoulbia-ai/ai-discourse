@@ -34,9 +34,10 @@ describe('Public Contract', () => {
     });
 
     it('exposes minimal runtime contract', () => {
-      // These 7 methods are the minimal contract — sufficient for any application
+      // These 8 methods are the minimal contract — sufficient for any application
       const minimal = [
-        'openProceeding', 'submitIntervention', 'getSynthesis',
+        'openProceeding', 'submitIntervention',
+        'updateSynthesis', 'getSynthesis',
         'registerAgent', 'runCycle',
         'listInterventions', 'ingestSignal',
       ];
@@ -49,7 +50,6 @@ describe('Public Contract', () => {
       // These are public and stable but not required for basic operation
       const extended = [
         'getProceeding', 'listProceedings', 'transitionProceeding',
-        'updateSynthesis',
         'createObligation', 'resolveObligation',
         'getAgentIds',
         'getAgenda', 'updateAttention',
