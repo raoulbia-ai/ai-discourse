@@ -72,14 +72,14 @@ This confirms the framework is functional. To see real multi-agent reasoning wit
 node examples/llm-incident-reasoning.js
 ```
 
-To see reasoning **persist and resume across runs** (the key differentiator):
+To see reasoning **persist and resume across runs**:
 
 ```bash
-node examples/llm-incident-resume.js            # Run 1: initial investigation → synthesis v1
-node examples/llm-incident-resume.js --resume    # Run 2: new evidence → revised synthesis v2
+node examples/llm-incident-initial.js    # Part 1: initial investigation → synthesis v1
+node examples/llm-incident-resume.js     # Part 2: new evidence → revised synthesis v2
 ```
 
-Run 2 loads the proceeding from disk, shows prior findings, and agents revise their diagnosis based on new evidence. The system continues instead of restarting.
+Part 2 reuses the same store and proceeding. It loads prior findings, injects new evidence, and agents revise their diagnosis. No CLI flags — resuming is simply reusing the same data directory.
 
 ---
 
@@ -116,9 +116,9 @@ The framework includes persistent institutional memory: it retains the state of 
 | `llm-research-note.js` | 2 | LLM agents compare two research papers with challenge |
 | `llm-pr-review.js` | 3 | LLM agents review a real GitHub PR (security, architecture, reliability) |
 | **`llm-incident-reasoning.js`** | **3** | **LLM agents investigate an incident over 4 cycles — best demo of multi-cycle reasoning** |
-| **`llm-incident-resume.js`** | **2** | **Resume an investigation across separate runs — best demo of persistence** |
+| **`llm-incident-initial.js` + `llm-incident-resume.js`** | **2** | **Two-part demo: start an investigation, then resume it later with new evidence** |
 
-**Start here:** `quickstart.js` → `llm-incident-reasoning.js` → `llm-incident-resume.js` (run twice: first without flag, then with `--resume`).
+**Start here:** `quickstart.js` → `llm-incident-reasoning.js` → `llm-incident-initial.js` then `llm-incident-resume.js`.
 
 LLM examples need an OpenAI-compatible endpoint (vLLM, Ollama, OpenAI).
 
