@@ -3,6 +3,14 @@
 const http = require('http');
 const https = require('https');
 
+// Valid intervention types — must match InterventionEngine
+const VALID_TYPES = new Set([
+  'interpret', 'challenge', 'introduce_evidence', 'request_verification',
+  'propose_framing', 'narrow_scope', 'widen_scope', 'split_proceeding',
+  'merge_proceedings', 'escalate', 'defer', 'synthesize',
+  'propose_settlement', 'reopen', 'agreement', 'revision',
+]);
+
 /**
  * OpenAI-Compatible LLM Adapter
  *
@@ -47,7 +55,18 @@ function createLLMAgent(opts) {
     async evaluate(context) {
       const prompt = buildPrompt(id, context, systemPrompt);
       const response = await callLLM(baseUrl, model, apiKey, prompt, temperature, maxTokens);
-      return parseResponse(id, context, response);
+      const result = parseResponse(id, context, response);
+
+      // Single retry on parse failure (empty result from non-empty response)
+      if (result.interventions.length === 0 && response && response.trim().length > 20 && result._diagnostics?.parse_failed) {
+        const retryResponse = await callLLM(baseUrl, model, apiKey, prompt, temperature, maxTokens);
+        const retryResult = parseResponse(id, context, retryResponse);
+        retryResult._diagnostics = retryResult._diagnostics || {};
+        retryResult._diagnostics.retried = true;
+        return retryResult;
+      }
+
+      return result;
     },
   };
 }
@@ -206,11 +225,20 @@ function callLLM(baseUrl, model, apiKey, prompt, temperature, maxTokens) {
 
 /**
  * Parse LLM response into interventions and obligations.
+ * Returns { interventions, obligations, _diagnostics }.
+ * _diagnostics is lightweight parse metadata for debugging — not part of the public contract.
  */
 function parseResponse(agentId, context, rawResponse) {
-  const empty = { interventions: [], obligations: [] };
+  const diagnostics = { raw_length: 0, parse_failed: false, dropped: [] };
+  const empty = { interventions: [], obligations: [], _diagnostics: diagnostics };
 
-  if (!rawResponse || !rawResponse.trim()) return empty;
+  if (!rawResponse || !rawResponse.trim()) {
+    diagnostics.parse_failed = true;
+    diagnostics.reason = 'empty_response';
+    return empty;
+  }
+
+  diagnostics.raw_length = rawResponse.length;
 
   // Extract JSON from response (may be wrapped in markdown code blocks)
   let jsonStr = rawResponse.trim();
@@ -229,9 +257,13 @@ function parseResponse(agentId, context, rawResponse) {
       try {
         parsed = JSON.parse(objMatch[0]);
       } catch {
+        diagnostics.parse_failed = true;
+        diagnostics.reason = 'json_extraction_failed';
         return empty;
       }
     } else {
+      diagnostics.parse_failed = true;
+      diagnostics.reason = 'no_json_found';
       return empty;
     }
   }
@@ -242,11 +274,24 @@ function parseResponse(agentId, context, rawResponse) {
   // Validate and clean interventions
   if (Array.isArray(parsed.interventions)) {
     for (const int of parsed.interventions) {
-      if (!int.proceeding_id || !int.type || !int.summary || !int.content) continue;
+      // Required fields
+      if (!int.proceeding_id || !int.type || !int.summary || !int.content) {
+        diagnostics.dropped.push({ reason: 'missing_fields', type: int.type || 'unknown' });
+        continue;
+      }
 
-      // Ensure proceeding exists in context
+      // Type must be valid
+      if (!VALID_TYPES.has(int.type)) {
+        diagnostics.dropped.push({ reason: 'invalid_type', type: int.type });
+        continue;
+      }
+
+      // Proceeding must exist in context
       const procExists = context.proceedings?.some(p => p.id === int.proceeding_id);
-      if (!procExists) continue;
+      if (!procExists) {
+        diagnostics.dropped.push({ reason: 'unknown_proceeding', type: int.type, proceeding_id: int.proceeding_id });
+        continue;
+      }
 
       interventions.push({
         proceeding_id: int.proceeding_id,
@@ -263,7 +308,10 @@ function parseResponse(agentId, context, rawResponse) {
   // Validate and clean obligations
   if (Array.isArray(parsed.obligations)) {
     for (const obl of parsed.obligations) {
-      if (!obl.proceeding_id || !obl.assigned_agent_id || !obl.description) continue;
+      if (!obl.proceeding_id || !obl.assigned_agent_id || !obl.description) {
+        diagnostics.dropped.push({ reason: 'missing_obligation_fields' });
+        continue;
+      }
       obligations.push({
         proceeding_id: obl.proceeding_id,
         assigned_agent_id: obl.assigned_agent_id,
@@ -272,7 +320,8 @@ function parseResponse(agentId, context, rawResponse) {
     }
   }
 
-  return { interventions, obligations };
+  diagnostics.accepted = interventions.length;
+  return { interventions, obligations, _diagnostics: diagnostics };
 }
 
 module.exports = { createLLMAgent, buildPrompt, parseResponse };
