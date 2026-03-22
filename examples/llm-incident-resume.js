@@ -77,7 +77,9 @@ OUTPUT: Return ONLY valid JSON:
 // ─── Main ───
 
 async function main() {
-  // Reuse the same store — this is all that's needed to resume
+  // Using the same data directory so prior state is loaded.
+  // There is no special "resume mode" — continuation happens because
+  // the same store and proceeding are reused.
   if (!fs.existsSync(DATA_DIR)) {
     console.error('No existing data found. Run llm-incident-initial.js first.');
     process.exit(1);
@@ -87,7 +89,8 @@ async function main() {
   const institution = createInstitution({ store });
   for (const agent of agents) institution.registerAgent(agent);
 
-  // Find existing proceeding
+  // Query the store for the existing proceeding created in Part 1.
+  // Reusing the same proceeding is what enables continuation instead of restarting.
   const proceedings = institution.listProceedings();
   if (proceedings.length === 0) {
     console.error('No existing proceedings found. Run llm-incident-initial.js first.');
