@@ -117,20 +117,22 @@ See the [full integration guide](docs/integration/how-to-plug-into-your-existing
 
 ## Define Your Own Agents
 
-Agent roles are defined entirely by your system prompt — the framework imposes no fixed personas. You decide what perspectives matter for your problem.
+The system prompt defines each agent's *lens* — what perspective they bring. But the prompt alone isn't what makes this different from giving an LLM a persona. What makes it different is what happens when multiple lenses collide inside the framework:
+
+- Each agent sees what every other agent has said (prior interventions)
+- Agents can challenge each other's reasoning with typed `challenge` interventions
+- The institution produces a versioned synthesis that reflects agreement, disagreement, and remaining uncertainty
+- This repeats across cycles, with state persisted between runs
+
+You choose the perspectives. The framework structures the collision.
 
 ```javascript
-// A legal reviewer
-createLLMAgent({ id: 'legal', ..., systemPrompt: 'You review code changes for GDPR and data privacy compliance...' })
-
-// A performance engineer
-createLLMAgent({ id: 'perf-eng', ..., systemPrompt: 'You evaluate changes for latency impact, memory usage, and scalability...' })
-
-// A domain expert
-createLLMAgent({ id: 'payments-expert', ..., systemPrompt: 'You are a payments domain expert who knows PCI-DSS, tokenization, and settlement flows...' })
+createLLMAgent({ id: 'legal', ..., systemPrompt: 'You review for GDPR and data privacy compliance...' })
+createLLMAgent({ id: 'perf-eng', ..., systemPrompt: 'You evaluate latency impact and scalability...' })
+createLLMAgent({ id: 'payments-expert', ..., systemPrompt: 'You know PCI-DSS, tokenization, and settlement flows...' })
 ```
 
-Mix any combination of agents for your use case. The framework handles the deliberation cycle — who sees what, when they respond, how interventions are typed and validated.
+A single prompted agent is a skill. Multiple prompted agents reasoning against each other inside a deliberation structure is an institution.
 
 ---
 
