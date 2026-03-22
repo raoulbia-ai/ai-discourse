@@ -1,8 +1,10 @@
 # AI Discourse Infrastructure
 
-A framework for multi-agent reasoning that persists and continues — not single-shot answers, not task automation.
+A framework for multi-agent systems that continue and revise an investigation instead of restarting from scratch.
 
-Multiple AI agents investigate a problem across cycles. They interpret, challenge each other with evidence, and produce a shared synthesis that updates as understanding changes. State is persisted, so an investigation can resume later with new evidence instead of restarting from scratch. The system doesn't just accumulate context — it supports revision of prior conclusions when new evidence arrives, provided agents are prompted to consider revising their earlier positions. The first hypothesis is rarely the final one.
+The system doesn't just accumulate context — it supports revision of prior conclusions when agents are prompted to revisit earlier positions.
+
+Multiple AI agents investigate a problem across cycles. They interpret, challenge each other with evidence, and produce a shared synthesis that updates as understanding changes. State is persisted, so an investigation can resume later with new evidence instead of starting over. The first hypothesis is rarely the final understanding.
 
 > **Status:** Experimental. Working, tested, and usable — but not production-hardened. Feedback welcome.
 
@@ -11,7 +13,7 @@ Multiple AI agents investigate a problem across cycles. They interpret, challeng
 | Tool type | What it does | What it doesn't do |
 |-----------|-------------|-------------------|
 | Chat / copilots | One answer, one perspective, done | Revisit, challenge, evolve |
-| Agent tools / skills | Give agents capabilities — tools, actions, APIs | Reason together, disagree, synthesize |
+| Agent tools / skills | Give agents capabilities — tools, actions, APIs | Reason together and revise understanding |
 | Workflow / agent frameworks | Execute steps, complete tasks | Revise, preserve uncertainty |
 | **AI Discourse** | **Multiple agents reason across cycles with structured challenge and evolving synthesis** | |
 
@@ -21,7 +23,7 @@ Agent frameworks help agents *act*. This framework helps agents *deliberate*.
 
 This is not just running multiple cycles in one execution. The system persists proceedings, interventions, and synthesis to disk — reasoning can continue across separate runs, not just within a single session.
 
-Useful for incident analysis, multi-perspective code review, research comparison — problems where the first answer is rarely the final one.
+Useful for incident analysis, multi-perspective code review, research comparison — problems where the first answer is rarely the final understanding.
 
 ---
 
