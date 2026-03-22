@@ -24,6 +24,12 @@ Cycle: 1 | Agents: 1 | Interventions: 1
 Synthesis (v1): The analyst identified this as worthy of examination.
 ```
 
+This confirms the framework works. To see real multi-agent reasoning with an LLM, run:
+
+```bash
+node examples/llm-incident-reasoning.js
+```
+
 ---
 
 ## How This Is Different
@@ -53,17 +59,19 @@ The framework includes persistent institutional memory: it retains the state of 
 
 ## Examples
 
-| Example | Agents | What it demonstrates |
-|---------|--------|---------------------|
-| `quickstart.js` | 1 | Minimal loop — start here for basics |
-| `bug-triage.js` | 3 | Software bug diagnosis with challenge |
-| `research-note.js` | 2 | Paper comparison with challenge |
-| `incident-triage.js` | 2 | Ops incident response |
-| `book-review.js` | 3 | Literary deliberation |
-| `llm-research-note.js` | 2 | LLM-powered paper comparison |
-| **`llm-incident-reasoning.js`** | **3** | **LLM-powered incident investigation — start here for LLM** |
+| Example | Agents | What it demonstrates | Requires LLM? |
+|---------|--------|---------------------|---------------|
+| `quickstart.js` | 1 | Smoke test — confirms framework runs | No |
+| `bug-triage.js` | 3 | Agents disagree on root cause of a bug | No |
+| `research-note.js` | 2 | Methodologist challenges domain expert on evidence quality | No |
+| `incident-triage.js` | 2 | Two perspectives on a production outage | No |
+| `book-review.js` | 3 | Literary critic, historian, and reader advocate deliberate | No |
+| `llm-research-note.js` | 2 | Real LLM agents compare two research papers | Yes |
+| **`llm-incident-reasoning.js`** | **3** | **Real LLM agents investigate an incident over 4 cycles — the best demo of what this framework does** | **Yes** |
 
-Deterministic examples need no LLM. LLM examples need an OpenAI-compatible endpoint (vLLM, Ollama, OpenAI).
+**Start here:** Run `quickstart.js` to verify setup, then `llm-incident-reasoning.js` to see real multi-agent reasoning.
+
+LLM examples need an OpenAI-compatible endpoint (vLLM, Ollama, OpenAI).
 
 ---
 
