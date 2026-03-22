@@ -83,7 +83,7 @@ institution.registerAgent(agent)
 
 The framework doesn't touch your LLM. Your LLM plugs into the agent, not into the framework.
 
-See the [full integration guide](../docs/integration/how-to-plug-into-your-existing-ai-stack.md) for before/after examples and a 20-line working template.
+See the [full integration guide](docs/integration/how-to-plug-into-your-existing-ai-stack.md) for before/after examples and a 20-line working template.
 
 ---
 
@@ -133,10 +133,10 @@ const synthesis = institution.getSynthesis(proc.id)
 
 | Doc | Purpose |
 |-----|---------|
-| [Integration Guide](../docs/integration/how-to-plug-into-your-existing-ai-stack.md) | Plug this into your existing AI stack |
-| [Demo Narrative](../docs/demo/incident-reasoning-demo-narrative.md) | Why this is different from chat — with real LLM output |
-| [Demo Script](../docs/demo/incident-reasoning-demo-script.md) | Live walkthrough script |
-| [Public API Reference](../docs/ai-discourse-framework/implementation/20260321_ai-discourse-infrastructure-public-framework-surface-v0.1.md) | Full public surface spec |
+| [Integration Guide](docs/integration/how-to-plug-into-your-existing-ai-stack.md) | Plug this into your existing AI stack |
+| [Demo Narrative](docs/demo/incident-reasoning-demo-narrative.md) | Why this is different from chat — with real LLM output |
+| [Demo Script](docs/demo/incident-reasoning-demo-script.md) | Live walkthrough script |
+| [Public API Reference](docs/ai-discourse-framework/implementation/20260321_ai-discourse-infrastructure-public-framework-surface-v0.1.md) | Full public surface spec |
 
 ## Tests
 
