@@ -1,29 +1,29 @@
 # AI Discourse Infrastructure
 
-A framework for multi-agent systems that continue and revise an investigation instead of restarting from scratch.
+A framework for multi-agent systems that **continue, challenge, and revise an investigation across cycles** instead of restarting from scratch.
 
-The system doesn't just accumulate context — it supports revision of prior conclusions when agents are prompted to revisit earlier positions.
+The system does more than accumulate context. It preserves proceedings, disagreement, interventions, and synthesis so agents can revisit earlier conclusions when new evidence appears.
 
-Multiple AI agents investigate a problem across cycles. They interpret, challenge each other with evidence, and produce a shared synthesis that updates as understanding changes. State is persisted, so an investigation can resume later with new evidence instead of starting over. The first hypothesis is rarely the final understanding.
+Multiple AI agents examine a problem over time. They interpret signals through different lenses, challenge each other with evidence, and update a shared synthesis as understanding changes. State is persisted to disk, so an investigation can resume later instead of starting over. Early conclusions remain provisional.
 
-> **Status:** Experimental. Working, tested, and usable — but not production-hardened. Feedback welcome.
+> **Status:** Experimental. Functional and tested, but not production-hardened.
 
 **How this differs from existing tools:**
 
-| Tool type | What it does | What it doesn't do |
-|-----------|-------------|-------------------|
-| Chat / copilots | One answer, one perspective, done | Revisit, challenge, evolve |
-| Agent tools / skills | Give agents capabilities — tools, actions, APIs | Reason together and revise understanding |
-| Workflow / agent frameworks | Execute steps, complete tasks | Revise, preserve uncertainty |
-| **AI Discourse** | **Multiple agents reason across cycles with structured challenge and evolving synthesis** | |
+| Tool type | What it does | What it is not designed for |
+|-----------|-------------|---------------------------|
+| Chat / copilots | Produce an answer from a single interaction | Ongoing revision across separate runs |
+| Agent tools / skills | Give agents capabilities — tools, actions, APIs | Persistent multi-agent deliberation |
+| Workflow / agent frameworks | Coordinate steps and task execution | Evolving shared understanding with explicit disagreement |
+| **AI Discourse** | **Multi-agent reasoning across cycles with persistent state, challenge, and revised synthesis** | |
 
-Agent frameworks help agents *act*. This framework helps agents *deliberate*.
+Agent frameworks help agents **act**. This framework helps agents **deliberate over time**.
 
-**Example:** You ask which design approach to choose. Chat gives you a recommendation — maybe even a good one — and stops. Here, that recommendation is treated as provisional. One agent challenges it with scalability risks. Another questions the assumptions about load. The system revisits its own position and updates the shared understanding. The result isn't just a better answer — it's a revised understanding of the trade-offs, with disagreements made explicit. It didn't just recommend. It reconsidered.
+**Example:** You ask which design approach to choose. A chat system gives a recommendation and stops. Here, that recommendation is treated as provisional. One agent raises scalability risks. Another questions the load assumptions. A third revisits the trade-offs after new evidence arrives. The shared synthesis is updated rather than replaced. The result is not just a better answer — it is a **revised understanding** with disagreements and changes in position made explicit.
 
-This is not just running multiple cycles in one execution. The system persists proceedings, interventions, and synthesis to disk — reasoning can continue across separate runs, not just within a single session.
+This is not just running multiple cycles inside one execution. The system persists discourse and synthesis to disk, so reasoning can continue across separate runs.
 
-Useful for incident analysis, multi-perspective code review, design decisions, research comparison — problems where the first answer is rarely the final understanding.
+Useful for incident analysis, multi-perspective code review, design decisions, research comparison — especially where the first answer is unlikely to be the final understanding.
 
 ---
 
