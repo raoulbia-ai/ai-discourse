@@ -195,11 +195,23 @@ npm test    # 147 tests
 
 ---
 
-## What This Is Not
+## What This Is (and Is Not)
 
-- Not a chatbot framework
-- Not a workflow engine
-- Not a task automation system
-- Not AGI
+Most agent frameworks coordinate agents to **execute tasks** — call tools, run workflows, produce deliverables. This framework operates at a different layer: it structures how agents **arrive at and revise understanding**.
 
-It is a structured reasoning system for problems where understanding evolves over time.
+| Agent orchestration systems | This framework |
+|----------------------------|---------------|
+| Coordinate agents to do things | Structure how agents reason together |
+| Focus on tools, actions, outcomes | Focus on interpretations, challenges, synthesis |
+| Task completes → done | Understanding evolves → revised, never "done" |
+| State is per-task | State persists across runs and sessions |
+
+This is not:
+- A chatbot framework
+- A workflow engine
+- A task automation system
+- An agent orchestration layer
+- AGI
+
+This is:
+A system for structuring multi-agent deliberation — where agents investigate a problem across cycles, challenge each other's reasoning, and produce a versioned institutional understanding that can be resumed and revised as new evidence arrives.
