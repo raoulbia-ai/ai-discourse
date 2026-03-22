@@ -45,7 +45,7 @@ The result is not just a recommendation, but a **revised understanding of the pr
 interpretation → challenge → revision → synthesis
 ```
 
-State persistence and multi-run continuation are supporting capabilities, not the core concept.
+State persistence and multi-run continuation are supporting capabilities, not the core concept. Continuation does not require a special mode — it emerges from reusing the same persisted state.
 
 ---
 
@@ -72,14 +72,14 @@ This confirms the framework is functional. To see real multi-agent reasoning wit
 node examples/llm-incident-reasoning.js
 ```
 
-To see reasoning **persist and resume across runs**:
+To see reasoning continue across separate runs:
 
 ```bash
 node examples/llm-incident-initial.js    # Part 1: initial investigation → synthesis v1
 node examples/llm-incident-resume.js     # Part 2: new evidence → revised synthesis v2
 ```
 
-Part 2 reuses the same store and proceeding. It loads prior findings, injects new evidence, and agents revise their diagnosis. No CLI flags — resuming is simply reusing the same data directory.
+There is no special "resume mode" — continuation happens by pointing at the same data directory and reusing the same proceeding. The second script loads prior findings, injects new evidence, and agents revise their diagnosis from where they left off.
 
 ---
 
@@ -116,7 +116,7 @@ The framework includes persistent institutional memory: it retains the state of 
 | `llm-research-note.js` | 2 | LLM agents compare two research papers with challenge |
 | `llm-pr-review.js` | 3 | LLM agents review a real GitHub PR (security, architecture, reliability) |
 | **`llm-incident-reasoning.js`** | **3** | **LLM agents investigate an incident over 4 cycles — best demo of multi-cycle reasoning** |
-| **`llm-incident-initial.js` + `llm-incident-resume.js`** | **2** | **Two-part demo: start an investigation, then resume it later with new evidence** |
+| **`llm-incident-initial.js` + `llm-incident-resume.js`** | **2** | **Two scripts, same data dir — shows continuation across runs via persisted state** |
 
 **Start here:** `quickstart.js` → `llm-incident-reasoning.js` → `llm-incident-initial.js` then `llm-incident-resume.js`.
 
