@@ -1,29 +1,59 @@
 # AI Discourse Infrastructure
 
-A framework for multi-agent systems that **continue, challenge, and revise an investigation across cycles** instead of restarting from scratch.
+A framework for multi-agent systems centered on **structured discourse — where agents challenge, revise, and build on each other's interpretations over time.**
 
-The system does more than accumulate context. It preserves proceedings, disagreement, interventions, and synthesis so agents can revisit earlier conclusions when new evidence appears.
+Instead of producing a single answer, the system supports **ongoing investigation**. Agents interpret a problem from different perspectives, challenge each other with evidence, and update a shared synthesis as understanding evolves. Early conclusions remain provisional.
 
-Multiple AI agents examine a problem over time. They interpret signals through different lenses, challenge each other with evidence, and update a shared synthesis as understanding changes. State is persisted to disk, so an investigation can resume later instead of starting over. Early conclusions remain provisional.
+The goal is not just better answers, but **visible reasoning dynamics**:
+
+- competing interpretations
+- explicit disagreement
+- revision of prior positions
+- gradual convergence (or sustained uncertainty)
 
 > **Status:** Experimental. Functional and tested, but not production-hardened.
+
+---
 
 **How this differs from existing tools:**
 
 | Tool type | What it does | What it is not designed for |
 |-----------|-------------|---------------------------|
-| Chat / copilots | Produce an answer from a single interaction | Ongoing revision across separate runs |
-| Agent tools / skills | Give agents capabilities — tools, actions, APIs | Persistent multi-agent deliberation |
-| Workflow / agent frameworks | Coordinate steps and task execution | Evolving shared understanding with explicit disagreement |
-| **AI Discourse** | **Multi-agent reasoning across cycles with persistent state, challenge, and revised synthesis** | |
+| Chat / copilots | Produce an answer from a single interaction | Sustained multi-agent debate and revision |
+| Agent tools / skills | Give agents capabilities (tools, APIs, actions) | Structured reasoning between agents |
+| Workflow / agent frameworks | Coordinate steps and execution | Evolving understanding through challenge and refinement |
+| **AI Discourse** | **Enables agents to reason together through structured challenge and evolving synthesis** | |
 
-Agent frameworks help agents **act**. This framework helps agents **deliberate over time**.
+Agent frameworks help agents **act**. This framework helps agents **deliberate**.
 
-**Example:** You ask which design approach to choose. A chat system gives a recommendation and stops. Here, that recommendation is treated as provisional. One agent raises scalability risks. Another questions the load assumptions. A third revisits the trade-offs after new evidence arrives. The shared synthesis is updated rather than replaced. The result is not just a better answer — it is a **revised understanding** with disagreements and changes in position made explicit.
+---
 
-This is not just running multiple cycles inside one execution. The system persists discourse and synthesis to disk, so reasoning can continue across separate runs.
+**Example:** You ask which design approach to choose. A chat system gives a recommendation and stops. Here, that recommendation becomes the starting point for discourse:
 
-Useful for incident analysis, multi-perspective code review, design decisions, research comparison — especially where the first answer is unlikely to be the final understanding.
+- one agent challenges it with scalability risks
+- another questions the assumptions
+- a third reframes the trade-offs
+- the system updates its shared understanding
+
+The result is not just a recommendation, but a **revised understanding of the problem**, with disagreements and changes in position made explicit.
+
+---
+
+**Key idea:** The system is built around **discourse, not answers**. Understanding emerges from:
+
+```
+interpretation → challenge → revision → synthesis
+```
+
+State persistence and multi-run continuation are supporting capabilities, not the core concept.
+
+---
+
+**When this is useful:** incident analysis, design decisions, multi-perspective code review, research comparison — especially where the first answer is unlikely to be the final understanding.
+
+---
+
+**This is not a system for producing answers. It is a system for working through a problem — collectively, iteratively, and transparently.**
 
 ---
 
