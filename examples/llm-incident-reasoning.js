@@ -13,6 +13,10 @@
  * Static incident object — no external integrations.
  * Uses ONLY the public API surface + LLM adapter.
  *
+ * Note: This example runs 4 cycles in a single execution. In practice,
+ * the same proceeding can be resumed later with new evidence — state is
+ * persisted to disk between runs.
+ *
  * Requirements:
  *   - OpenAI-compatible API running (vLLM, Ollama, OpenAI)
  *   - Default: http://127.0.0.1:8000/v1 with model "local-vllm"

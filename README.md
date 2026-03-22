@@ -1,8 +1,8 @@
 # AI Discourse Infrastructure
 
-A framework for multi-agent reasoning that evolves over time — not single-shot answers, not task automation.
+A framework for multi-agent reasoning that persists and continues — not single-shot answers, not task automation.
 
-Multiple AI agents investigate a problem across cycles. They interpret, challenge each other with evidence, and produce a shared synthesis that updates as understanding changes. The first hypothesis is rarely the final one.
+Multiple AI agents investigate a problem across cycles. They interpret, challenge each other with evidence, and produce a shared synthesis that updates as understanding changes. State is persisted, so an investigation can resume later with new evidence instead of restarting from scratch. The first hypothesis is rarely the final one.
 
 > **Status:** Experimental. Working, tested, and usable — but not production-hardened. Feedback welcome.
 
@@ -18,6 +18,8 @@ Multiple AI agents investigate a problem across cycles. They interpret, challeng
 Agent frameworks help agents *act*. This framework helps agents *deliberate*.
 
 **Example:** In an incident investigation, chat says "key rotation broke decryption" and stops. This framework runs 3 agents over 4 cycles — one challenges the initial hypothesis with log evidence, the diagnosis shifts to "two coupled defects", and the synthesis preserves the remaining uncertainty. That evolution is the point.
+
+This is not just running multiple cycles in one execution. The system persists proceedings, interventions, and synthesis to disk — reasoning can continue across separate runs, not just within a single session.
 
 Useful for incident analysis, multi-perspective code review, research comparison — problems where the first answer is rarely the final one.
 
