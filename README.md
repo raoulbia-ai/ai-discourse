@@ -115,6 +115,25 @@ See the [full integration guide](docs/integration/how-to-plug-into-your-existing
 
 ---
 
+## Define Your Own Agents
+
+Agent roles are defined entirely by your system prompt — the framework imposes no fixed personas. You decide what perspectives matter for your problem.
+
+```javascript
+// A legal reviewer
+createLLMAgent({ id: 'legal', ..., systemPrompt: 'You review code changes for GDPR and data privacy compliance...' })
+
+// A performance engineer
+createLLMAgent({ id: 'perf-eng', ..., systemPrompt: 'You evaluate changes for latency impact, memory usage, and scalability...' })
+
+// A domain expert
+createLLMAgent({ id: 'payments-expert', ..., systemPrompt: 'You are a payments domain expert who knows PCI-DSS, tokenization, and settlement flows...' })
+```
+
+Mix any combination of agents for your use case. The framework handles the deliberation cycle — who sees what, when they respond, how interventions are typed and validated.
+
+---
+
 ## How It Works
 
 ```
