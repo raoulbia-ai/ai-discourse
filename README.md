@@ -1,8 +1,10 @@
 # AI Discourse Infrastructure
 
-A framework for AI systems that reason over time instead of answering once.
+An early-stage framework for AI systems that reason over time instead of answering once.
 
 Chat gives answers. This system investigates.
+
+> **Status:** Experimental. Working, tested, and usable — but not production-hardened. Feedback welcome.
 
 ---
 
