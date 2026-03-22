@@ -125,7 +125,18 @@ institution.registerAgent(methodologist);
 institution.registerAgent(domainExpert);
 
 async function main() {
-  console.log('=== LLM Research Note ===\n');
+  console.log('=== LLM Research Note ===');
+  console.log(`LLM: ${BASE_URL} / ${MODEL}`);
+  console.log('');
+  console.log('--- Inputs ---');
+  console.log('  Paper A: Novel CBT variant, 42% improvement, waitlist control, N=120, PHQ-9');
+  console.log('  Paper B: Standard CBT, 23% improvement, active control, N=85, HDRS-17');
+  console.log('  Question: Which paper provides stronger evidence for intervention efficacy?');
+  console.log('');
+  console.log('--- Agents & Roles ---');
+  console.log('  methodologist  : evaluates study design, statistical rigor, measurement validity');
+  console.log('  domain-expert  : evaluates claims against prior literature and field knowledge');
+  console.log('');
 
   // Ingest signals
   institution.ingestSignal({

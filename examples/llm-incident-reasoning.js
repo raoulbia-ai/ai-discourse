@@ -165,8 +165,20 @@ institution.registerAgent(productMgr);
 async function main() {
   console.log(`=== LLM Incident Reasoning: ${INCIDENT.id} ===`);
   console.log(`LLM: ${BASE_URL} / ${MODEL}`);
-  console.log(`Agents: backend-eng, qa-eng, product-mgr`);
-  console.log(`Cycles: ${CYCLES}\n`);
+  console.log(`Cycles: ${CYCLES}`);
+  console.log('');
+  console.log('--- Incident Input ---');
+  console.log(`  Title: ${INCIDENT.title}`);
+  console.log(`  Severity: ${INCIDENT.severity}`);
+  console.log(`  Symptoms:`);
+  for (const s of INCIDENT.symptoms) console.log(`    - ${s}`);
+  console.log(`  Key clue: ${INCIDENT.timeline[INCIDENT.timeline.length - 1]}`);
+  console.log('');
+  console.log('--- Agents & Roles ---');
+  console.log('  backend-eng : traces technical root cause (code paths, error traces, infra state)');
+  console.log('  qa-eng      : challenges assumptions, checks evidence quality, proposes alternatives');
+  console.log('  product-mgr : evaluates user impact and remediation priorities');
+  console.log('');
 
   // Ingest incident as signal
   institution.ingestSignal({
