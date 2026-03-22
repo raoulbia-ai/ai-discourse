@@ -11,7 +11,8 @@ Chat gives answers. This system investigates.
 ## Quick Start
 
 ```bash
-cd infra
+git clone https://github.com/raoulbia-ai/ai-discourse.git
+cd ai-discourse
 npm install
 node examples/quickstart.js
 ```
@@ -71,7 +72,7 @@ Deterministic examples need no LLM. LLM examples need an OpenAI-compatible endpo
 Your existing LLM call goes here:
 
 ```javascript
-import { createLLMAgent } from './infra/adapters/index.js'
+import { createLLMAgent } from './adapters/index.js'
 
 const agent = createLLMAgent({
   id: 'analyst',
@@ -96,7 +97,7 @@ store → institution → registerAgent → openProceeding → runCycle → upda
 ```
 
 ```javascript
-import { createStore, createInstitution } from './infra/index.js'
+import { createStore, createInstitution } from './index.js'
 
 const store = createStore('./data')
 const institution = createInstitution({ store })
