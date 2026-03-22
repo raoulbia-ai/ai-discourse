@@ -34,14 +34,7 @@ npm install
 node examples/quickstart.js
 ```
 
-```
-=== AI Discourse Infrastructure — Quickstart ===
-Proceeding: Sample Inquiry
-Cycle: 1 | Agents: 1 | Interventions: 1
-Synthesis (v1): The analyst identified this as worthy of examination.
-```
-
-This confirms the framework works. To see real multi-agent reasoning with an LLM, run:
+This confirms the framework is functional. To see real multi-agent reasoning with an LLM, run:
 
 ```bash
 node examples/llm-incident-reasoning.js
