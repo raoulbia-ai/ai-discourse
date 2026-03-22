@@ -1,10 +1,22 @@
 # AI Discourse Infrastructure
 
-An early-stage framework for AI systems that reason over time instead of answering once.
+A framework for multi-agent reasoning that evolves over time — not single-shot answers, not task automation.
 
-Chat gives answers. This system investigates.
+Multiple AI agents investigate a problem across cycles. They interpret, challenge each other with evidence, and produce a shared synthesis that updates as understanding changes. The first hypothesis is rarely the final one.
 
 > **Status:** Experimental. Working, tested, and usable — but not production-hardened. Feedback welcome.
+
+**How this differs from existing tools:**
+
+| Tool type | What it does | What it doesn't do |
+|-----------|-------------|-------------------|
+| Chat / copilots | One answer, one perspective, done | Revisit, challenge, evolve |
+| Workflow / agent frameworks | Execute steps, complete tasks | Disagree, revise, preserve uncertainty |
+| **AI Discourse** | **Multiple agents reason across cycles with structured challenge and evolving synthesis** | |
+
+**Example:** In an incident investigation, chat says "key rotation broke decryption" and stops. This framework runs 3 agents over 4 cycles — one challenges the initial hypothesis with log evidence, the diagnosis shifts to "two coupled defects", and the synthesis preserves the remaining uncertainty. That evolution is the point.
+
+Useful for incident analysis, multi-perspective code review, research comparison — problems where the first answer is rarely the final one.
 
 ---
 
