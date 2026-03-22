@@ -46,6 +46,8 @@ Synthesis (v1): The analyst identified this as worthy of examination.
 
 This repeats across cycles. Understanding evolves — it doesn't just appear.
 
+The framework includes persistent institutional memory: it retains the state of proceedings, interventions, syntheses, and precedents so reasoning can continue across cycles instead of restarting each time. See [what "memory" means in this framework](docs/concepts/memory.md).
+
 ---
 
 ## Examples
@@ -136,7 +138,7 @@ const synthesis = institution.getSynthesis(proc.id)
 | [Integration Guide](docs/integration/how-to-plug-into-your-existing-ai-stack.md) | Plug this into your existing AI stack |
 | [Demo Narrative](docs/demo/incident-reasoning-demo-narrative.md) | Why this is different from chat — with real LLM output |
 | [Demo Script](docs/demo/incident-reasoning-demo-script.md) | Live walkthrough script |
-| [Public API Reference](docs/ai-discourse-framework/implementation/20260321_ai-discourse-infrastructure-public-framework-surface-v0.1.md) | Full public surface spec |
+| [Memory Model](docs/concepts/memory.md) | What "memory" means in this framework |
 
 ## Tests
 
