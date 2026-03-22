@@ -8,7 +8,7 @@ This framework provides persistent institutional memory for reasoning over time.
 
 The system retains structured state across deliberation cycles and uses it in future reasoning. Agents can see what was said before, what was challenged, what was settled, and what remains uncertain. Prior proceedings can inform new ones through explicit precedent links.
 
-That is memory — not in the human sense, but in the institutional sense. Courts remember precedent. Research labs remember prior findings. Incident teams remember what was tried. This framework does the same thing for AI reasoning.
+That is memory — not in the human sense, but in the institutional sense. Courts retain precedent. Research labs retain prior findings. Incident teams retain records of what was tried. This framework does the same thing for AI reasoning.
 
 ---
 
@@ -26,11 +26,11 @@ Think of it as the memory of an investigation, not the memory of a person.
 
 ## 3. What Is Stored
 
-| Record | What it remembers |
+| Record | What it retains |
 |--------|------------------|
 | **Proceedings** | Matters under examination — their framing, status, and lifecycle |
 | **Interventions** | Every typed reasoning act: interpretations, challenges, evidence, agreements, revisions |
-| **Syntheses** | Versioned institutional readings — what the system currently believes, with uncertainties and dissent |
+| **Syntheses** | Versioned institutional readings — the current assessment, with uncertainties and dissent |
 | **Obligations** | Unresolved investigative work — what still needs to be done |
 | **Closure records** | How and why a proceeding was settled, including reopening conditions |
 | **Precedent links** | Explicit connections between past and current proceedings |
@@ -47,6 +47,27 @@ Memory is not passive storage. It shapes what happens next:
 - **Prior interventions remain inspectable.** An agent in cycle 4 can see what was challenged in cycle 2 and decide whether the challenge was addressed.
 - **Past proceedings can inform new ones.** Precedent links connect related investigations — a new incident can reference how a similar one was diagnosed.
 - **Preserved dissent can matter later.** A minority view that was preserved in synthesis may become the majority view when new evidence arrives in a future cycle.
+
+### Concrete example: memory across cycles
+
+```
+Cycle 1:
+  [backend-eng] interpret: "Key rotation broke decryption" (confidence: 0.86)
+  [qa-eng] challenge: "The error trace points to our internal KMS, not the provider"
+
+Cycle 2:
+  → qa-eng sees backend-eng's hypothesis AND their own prior challenge
+  → introduces new evidence: KMS registry shows key version disabled
+  → revises the diagnosis: "provider rotation triggered an internal sync bug"
+
+Cycle 3:
+  → backend-eng sees qa-eng's evidence from cycle 2
+  → revises position to match: "two coupled defects"
+```
+
+Without memory, cycle 2 would start from scratch. With memory, each cycle builds on what came before — including what was challenged.
+
+Memory is persisted via the framework's storage layer (file-based by default), so state survives across process restarts.
 
 ---
 
@@ -124,10 +145,10 @@ Honesty about limitations:
 
 ## 9. Why This Matters
 
-Chat AI is stateless. Every conversation starts fresh. Ask it the same question tomorrow and it has no memory of yesterday's answer, the evidence you provided, or the hypothesis it rejected.
+Chat AI is stateless. Every conversation starts fresh. Ask it the same question tomorrow and it has no record of yesterday's answer, the evidence provided, or the hypothesis that was rejected.
 
 This framework retains the state of proceedings, interventions, syntheses, and precedents. Reasoning can continue across cycles instead of restarting each time. An investigation that ran for 4 cycles yesterday can resume today with its full discourse history, current synthesis, and open obligations intact.
 
 That is the core value: **persistent reasoning, not persistent chat.**
 
-The system doesn't remember everything about everything. It remembers the structure of deliberation — what was examined, what was concluded, what was challenged, what remains uncertain, and what connects to what came before.
+The framework does not retain everything about everything. It retains the structure of deliberation — what was examined, what was concluded, what was challenged, what remains uncertain, and what connects to what came before.
