@@ -63,6 +63,7 @@ The framework includes persistent institutional memory: it retains the state of 
 |---------|--------|---------------------|
 | `quickstart.js` | 1 | Smoke test — confirms framework runs (no LLM needed) |
 | `llm-research-note.js` | 2 | LLM agents compare two research papers with challenge |
+| `llm-pr-review.js` | 3 | LLM agents review a real GitHub PR (security, architecture, reliability) |
 | **`llm-incident-reasoning.js`** | **3** | **LLM agents investigate an incident over 4 cycles — the best demo of what this framework does** |
 
 **Start here:** Run `quickstart.js` to verify setup, then `llm-incident-reasoning.js` to see real multi-agent reasoning.
