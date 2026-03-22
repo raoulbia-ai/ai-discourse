@@ -11,8 +11,11 @@ Multiple AI agents investigate a problem across cycles. They interpret, challeng
 | Tool type | What it does | What it doesn't do |
 |-----------|-------------|-------------------|
 | Chat / copilots | One answer, one perspective, done | Revisit, challenge, evolve |
-| Workflow / agent frameworks | Execute steps, complete tasks | Disagree, revise, preserve uncertainty |
+| Agent tools / skills | Give agents capabilities — tools, actions, APIs | Reason together, disagree, synthesize |
+| Workflow / agent frameworks | Execute steps, complete tasks | Revise, preserve uncertainty |
 | **AI Discourse** | **Multiple agents reason across cycles with structured challenge and evolving synthesis** | |
+
+Agent frameworks help agents *act*. This framework helps agents *deliberate*.
 
 **Example:** In an incident investigation, chat says "key rotation broke decryption" and stops. This framework runs 3 agents over 4 cycles — one challenges the initial hypothesis with log evidence, the diagnosis shifts to "two coupled defects", and the synthesis preserves the remaining uncertainty. That evolution is the point.
 
