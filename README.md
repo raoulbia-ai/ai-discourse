@@ -59,15 +59,11 @@ The framework includes persistent institutional memory: it retains the state of 
 
 ## Examples
 
-| Example | Agents | What it demonstrates | Requires LLM? |
-|---------|--------|---------------------|---------------|
-| `quickstart.js` | 1 | Smoke test — confirms framework runs | No |
-| `bug-triage.js` | 3 | Agents disagree on root cause of a bug | No |
-| `research-note.js` | 2 | Methodologist challenges domain expert on evidence quality | No |
-| `incident-triage.js` | 2 | Two perspectives on a production outage | No |
-| `book-review.js` | 3 | Literary critic, historian, and reader advocate deliberate | No |
-| `llm-research-note.js` | 2 | Real LLM agents compare two research papers | Yes |
-| **`llm-incident-reasoning.js`** | **3** | **Real LLM agents investigate an incident over 4 cycles — the best demo of what this framework does** | **Yes** |
+| Example | Agents | What it demonstrates |
+|---------|--------|---------------------|
+| `quickstart.js` | 1 | Smoke test — confirms framework runs (no LLM needed) |
+| `llm-research-note.js` | 2 | LLM agents compare two research papers with challenge |
+| **`llm-incident-reasoning.js`** | **3** | **LLM agents investigate an incident over 4 cycles — the best demo of what this framework does** |
 
 **Start here:** Run `quickstart.js` to verify setup, then `llm-incident-reasoning.js` to see real multi-agent reasoning.
 
