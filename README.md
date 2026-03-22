@@ -19,11 +19,11 @@ Multiple AI agents investigate a problem across cycles. They interpret, challeng
 
 Agent frameworks help agents *act*. This framework helps agents *deliberate*.
 
-**Example:** In an incident investigation, chat says "key rotation broke decryption" and stops. This framework runs 3 agents over 4 cycles — one challenges the initial hypothesis with log evidence, the diagnosis shifts to "two coupled defects", and the synthesis preserves the remaining uncertainty. That evolution is the point.
+**Example:** You ask which design approach to choose. Chat gives you a recommendation — maybe even a good one — and stops. Here, that recommendation is treated as provisional. One agent challenges it with scalability risks. Another questions the assumptions about load. The system revisits its own position and updates the shared understanding. The result isn't just a better answer — it's a revised understanding of the trade-offs, with disagreements made explicit. It didn't just recommend. It reconsidered.
 
 This is not just running multiple cycles in one execution. The system persists proceedings, interventions, and synthesis to disk — reasoning can continue across separate runs, not just within a single session.
 
-Useful for incident analysis, multi-perspective code review, research comparison — problems where the first answer is rarely the final understanding.
+Useful for incident analysis, multi-perspective code review, design decisions, research comparison — problems where the first answer is rarely the final understanding.
 
 ---
 
