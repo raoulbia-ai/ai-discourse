@@ -40,6 +40,15 @@ This confirms the framework is functional. To see real multi-agent reasoning wit
 node examples/llm-incident-reasoning.js
 ```
 
+To see reasoning **persist and resume across runs** (the key differentiator):
+
+```bash
+node examples/llm-incident-resume.js            # Run 1: initial investigation → synthesis v1
+node examples/llm-incident-resume.js --resume    # Run 2: new evidence → revised synthesis v2
+```
+
+Run 2 loads the proceeding from disk, shows prior findings, and agents revise their diagnosis based on new evidence. The system continues instead of restarting.
+
 ---
 
 ## How This Is Different
@@ -74,9 +83,10 @@ The framework includes persistent institutional memory: it retains the state of 
 | `quickstart.js` | 1 | Smoke test — confirms framework runs (no LLM needed) |
 | `llm-research-note.js` | 2 | LLM agents compare two research papers with challenge |
 | `llm-pr-review.js` | 3 | LLM agents review a real GitHub PR (security, architecture, reliability) |
-| **`llm-incident-reasoning.js`** | **3** | **LLM agents investigate an incident over 4 cycles — the best demo of what this framework does** |
+| **`llm-incident-reasoning.js`** | **3** | **LLM agents investigate an incident over 4 cycles — best demo of multi-cycle reasoning** |
+| **`llm-incident-resume.js`** | **2** | **Resume an investigation across separate runs — best demo of persistence** |
 
-**Start here:** Run `quickstart.js` to verify setup, then `llm-incident-reasoning.js` to see real multi-agent reasoning.
+**Start here:** `quickstart.js` → `llm-incident-reasoning.js` → `llm-incident-resume.js` (run twice: first without flag, then with `--resume`).
 
 LLM examples need an OpenAI-compatible endpoint (vLLM, Ollama, OpenAI).
 
