@@ -43,11 +43,13 @@ class CycleRunner {
    * @param {import('../storage/file-store')} store
    * @param {CycleConfig} config
    */
-  constructor(institution, store, config) {
+  constructor(institution, store, config, factories = {}) {
     this.inst = institution;
     this.store = store;
     this.config = config;
     this.maxParallel = config.maxParallel || 3;
+    this._createDelta = factories.createDelta || ((s) => new (require('./delta').DeltaDetector)(s));
+    this._createState = factories.createState || ((s) => new (require('./state').StateManager)(s));
   }
 
   /**
@@ -81,10 +83,8 @@ class CycleRunner {
     // Delta-gating: check which agents should act
     let agentsToRun = wave.agents;
     if (wave.deltaGated) {
-      const { DeltaDetector } = require('./delta');
-      const { StateManager } = require('./state');
-      const delta = new DeltaDetector(this.store);
-      const state = new StateManager(this.store);
+      const delta = this._createDelta(this.store);
+      const state = this._createState(this.store);
 
       agentsToRun = wave.agents.filter(agentId => {
         const lastState = state.getAgentState(agentId) || {};
