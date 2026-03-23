@@ -1,34 +1,59 @@
 # AI Discourse Infrastructure
 
-A framework for multi-agent systems centered on **structured discourse — where agents challenge, revise, and build on each other's interpretations over time.**
+An institutional reasoning system built on structured discourse.
 
-Instead of producing a single answer, the system supports **ongoing investigation**. Agents interpret a problem from different perspectives, challenge each other with evidence, and update a shared synthesis as understanding evolves. Early conclusions remain provisional.
+Agents don't chat — they submit typed interventions into shared proceedings. They interpret, challenge, introduce evidence, and revise positions. The system tracks what was said, what was contested, and what survived scrutiny. Understanding is versioned, not overwritten.
 
-The goal is not just better answers, but **visible reasoning dynamics**:
-
-- competing interpretations
-- explicit disagreement
-- revision of prior positions
-- gradual convergence (or sustained uncertainty)
-
-> **Status:** Experimental. Functional and tested, but not production-hardened.
+> **Status:** Experimental. Functional and tested (158 tests), but not production-hardened.
 
 ---
 
-**How this differs from existing tools:**
+## What This Is
 
-| Tool type | What it does | What it is not designed for |
-|-----------|-------------|---------------------------|
-| Chat / copilots | Produce an answer from a single interaction | Sustained multi-agent debate and revision |
-| Agent tools / skills | Give agents capabilities (tools, APIs, actions) | Structured reasoning between agents |
-| Workflow / agent frameworks | Coordinate steps and execution | Evolving understanding through challenge and refinement |
-| **AI Discourse** | **Enables agents to reason together through structured challenge and evolving synthesis** | |
+This system is organized around a mandatory institutional chain:
 
-Agent frameworks help agents **act**. This framework helps agents **deliberate**.
+```
+proceedings → interventions → synthesis → memory
+```
+
+- **Proceedings** — matters under collective examination, with a lifecycle and state machine
+- **Interventions** — typed procedural acts (interpret, challenge, introduce_evidence, revision, agreement, etc.)
+- **Obligations** — tracked investigative work assigned to agents
+- **Synthesis** — the institution's versioned reading, with uncertainties and preserved dissent
+- **Memory** — precedent links between proceedings, persisted across runs
+
+These are structural components of the system, not optional plugins.
 
 ---
 
-**Example:** You ask which design approach to choose. A chat system gives a recommendation and stops. Here, that recommendation becomes the starting point for discourse:
+## What This Is Not
+
+- Not a generic agent framework
+- Not a workflow engine
+- Not a task orchestration system
+- Not a minimal loop runner
+- Not AGI
+
+This system's value comes from **enforced structure**, not flexibility. If the system can run without proceedings, typed interventions, and synthesis, it has failed its design.
+
+---
+
+## How This Differs
+
+| Agent orchestration systems | This system |
+|----------------------------|-------------|
+| Coordinate agents to do things | Structure how agents reason together |
+| Focus on tools, actions, outcomes | Focus on interpretations, challenges, synthesis |
+| Task completes → done | Understanding evolves → revised, never "done" |
+| State is per-task | State persists across runs and sessions |
+
+Agent frameworks help agents **act**. This system helps agents **deliberate**.
+
+---
+
+## Example
+
+You ask which design approach to choose. A chat system gives a recommendation and stops. Here, that recommendation becomes the starting point for discourse:
 
 - one agent challenges it with scalability risks
 - another questions the assumptions
@@ -39,34 +64,14 @@ The result is not just a recommendation, but a **revised understanding of the pr
 
 ---
 
-**Key idea:** The system is built around **discourse, not answers**. Understanding emerges from:
-
-```
-interpretation → challenge → revision → synthesis
-```
-
-State persistence and multi-run continuation are supporting capabilities, not the core concept. Continuation does not require a special mode — it emerges from reusing the same persisted state.
-
----
-
-**When this is useful:** incident analysis, design decisions, multi-perspective code review, research comparison — especially where the first answer is unlikely to be the final understanding.
-
----
-
-**This is not a system for producing answers. It is a system for working through a problem — collectively, iteratively, and transparently.**
-
----
-
 ## Quick Start
 
 ```bash
-git clone https://github.com/raoulbia-ai/ai-discourse.git
-cd ai-discourse
 npm install
 node examples/quickstart.js
 ```
 
-This confirms the framework is functional. To see real multi-agent reasoning with an LLM, run:
+This confirms the system is functional. To see real multi-agent reasoning with an LLM:
 
 ```bash
 node examples/llm-incident-reasoning.js
@@ -79,32 +84,56 @@ node examples/llm-incident-initial.js    # Part 1: initial investigation → syn
 node examples/llm-incident-resume.js     # Part 2: new evidence → revised synthesis v2
 ```
 
-There is no special "resume mode" — continuation happens by pointing at the same data directory and reusing the same proceeding. The second script loads prior findings, injects new evidence, and agents revise their diagnosis from where they left off.
+Continuation happens by reusing the same data directory and proceeding — no special mode required.
 
 ---
 
-## How This Is Different
+## Architecture
 
-| | Chat AI | This Framework |
-|---|---------|---------------|
-| Answers | Once | Evolves over multiple cycles |
-| Perspectives | One | Multiple agents, different lenses |
-| Disagreement | Not possible | Structured challenges with evidence |
-| Memory | Stateless | Persistent proceedings with history |
-| Output | First response = final | Versioned synthesis with uncertainty |
+### Institutional Core
 
----
+The core implements the mandatory reasoning chain. These components are first-class, enforced, and non-removable:
 
-## What Happens When You Run This
+```
+core/
+  proceedings/       # 13-state lifecycle, framing, attention
+  interventions/     # 16 typed acts with grounds and targets enforcement
+  obligations/       # TTL-based investigative work tracking
+  synthesis/         # Versioned institutional readings + discourse metrics
+  governance/        # Rules, stewardship actions, discourse health
+    governance-rules.js
+    stewardship-actions.js
+    discourse-health.js
+  memory/            # Precedent links between proceedings
+  agenda/            # Watchlists and priority ranking
+```
 
-1. Agents analyze the problem from different perspectives
-2. They challenge each other's hypotheses with evidence
-3. New interpretations emerge from the disagreement
-4. The system updates its institutional understanding (synthesis)
+### Infrastructure
 
-This repeats across cycles. Understanding evolves — it doesn't just appear.
+Supporting layers — replaceable without changing the system's identity:
 
-The framework includes persistent institutional memory: it retains the state of proceedings, interventions, syntheses, and precedents so reasoning can continue across cycles instead of restarting each time. See [what "memory" means in this framework](docs/concepts/memory.md).
+```
+adapters/            # LLM providers (OpenAI-compatible)
+storage/             # Persistence (file-based by default)
+runtime/             # Cycle runner, delta detection, agent runtime, state management
+  institution-context.js   # Abstraction boundary between runtime and core
+api/                 # REST API (Express, optional)
+```
+
+### Execution Model
+
+The system is organized around this chain:
+
+```
+proceedings → interventions → synthesis → memory
+```
+
+- `runCycle()` requires active proceedings to exist — it will not run on empty state
+- Agents submit typed interventions during each cycle
+- Synthesis is an explicit step — the system signals when it is pending but does not auto-generate it
+- State persists to disk so investigations can continue across runs
+
+The chain is the product, not an implementation detail.
 
 ---
 
@@ -112,13 +141,11 @@ The framework includes persistent institutional memory: it retains the state of 
 
 | Example | Agents | What it demonstrates |
 |---------|--------|---------------------|
-| `quickstart.js` | 1 | Smoke test — confirms framework runs (no LLM needed) |
-| `llm-research-note.js` | 2 | LLM agents compare two research papers with challenge |
-| `llm-pr-review.js` | 3 | LLM agents review a real GitHub PR (security, architecture, reliability) |
-| **`llm-incident-reasoning.js`** | **3** | **LLM agents investigate an incident over 4 cycles — best demo of multi-cycle reasoning** |
-| **`llm-incident-initial.js` + `llm-incident-resume.js`** | **2** | **Two scripts, same data dir — shows continuation across runs via persisted state** |
-
-**Start here:** `quickstart.js` → `llm-incident-reasoning.js` → `llm-incident-initial.js` then `llm-incident-resume.js`.
+| `quickstart.js` | 1 | Smoke test — confirms system runs (no LLM needed) |
+| `llm-research-note.js` | 2 | LLM agents compare research papers with challenge |
+| `llm-pr-review.js` | 3 | LLM agents review a real GitHub PR |
+| **`llm-incident-reasoning.js`** | **3** | **LLM agents investigate an incident over 4 cycles** |
+| **`llm-incident-initial.js` + `llm-incident-resume.js`** | **2** | **Continuation across runs via persisted state** |
 
 LLM examples need an OpenAI-compatible endpoint (vLLM, Ollama, OpenAI).
 
@@ -133,7 +160,7 @@ import { createLLMAgent } from './adapters/index.js'
 
 const agent = createLLMAgent({
   id: 'analyst',
-  baseUrl: 'http://127.0.0.1:8000/v1',  // vLLM, Ollama, OpenAI, etc.
+  baseUrl: 'http://127.0.0.1:8000/v1',
   model: 'local-vllm',
   systemPrompt: 'You are an analyst who...'
 })
@@ -141,28 +168,20 @@ const agent = createLLMAgent({
 institution.registerAgent(agent)
 ```
 
-The framework doesn't touch your LLM. Your LLM plugs into the agent, not into the framework.
+The system doesn't touch your LLM. Your LLM plugs into the agent, not into the system.
 
-See the [full integration guide](docs/integration/how-to-plug-into-your-existing-ai-stack.md) for before/after examples and a 20-line working template.
+See the [integration guide](docs/integration/how-to-plug-into-your-existing-ai-stack.md).
 
 ---
 
 ## Define Your Own Agents
 
-The system prompt defines each agent's *lens* — what perspective they bring. But the prompt alone isn't what makes this different from giving an LLM a persona. What makes it different is what happens when multiple lenses collide inside the framework:
+The system prompt defines each agent's lens. But the prompt alone isn't what makes this different from giving an LLM a persona. What makes it different is what happens when multiple lenses collide inside the institutional structure:
 
-- Each agent sees what every other agent has said (prior interventions)
-- Agents can challenge each other's reasoning with typed `challenge` interventions
-- The institution produces a versioned synthesis that reflects agreement, disagreement, and remaining uncertainty
+- Each agent sees what every other agent has said
+- Agents can challenge each other with typed interventions
+- The institution produces a versioned synthesis with preserved disagreement
 - This repeats across cycles, with state persisted between runs
-
-You choose the perspectives. The framework structures the collision.
-
-```javascript
-createLLMAgent({ id: 'legal', ..., systemPrompt: 'You review for GDPR and data privacy compliance...' })
-createLLMAgent({ id: 'perf-eng', ..., systemPrompt: 'You evaluate latency impact and scalability...' })
-createLLMAgent({ id: 'payments-expert', ..., systemPrompt: 'You know PCI-DSS, tokenization, and settlement flows...' })
-```
 
 A single prompted agent is a skill. Multiple prompted agents reasoning against each other inside a deliberation structure is an institution.
 
@@ -210,40 +229,45 @@ const synthesis = institution.getSynthesis(proc.id)
 
 ---
 
+## Recent Refactor
+
+The codebase was refactored for architectural clarity:
+
+- Storage abstraction cleaned — no private method leakage across layers
+- GovernanceEngine split into rules, stewardship actions, and discourse health
+- Runtime receives dependencies via InstitutionContext, not raw store access
+- `runCycle()` enforces that proceedings exist before agents run
+- Return value includes chain status indicating when synthesis is pending
+
+The refactor improved modularity without changing the system's identity. Nothing became optional. The institutional chain remains mandatory.
+
+---
+
 ## Documentation
 
 | Doc | Purpose |
 |-----|---------|
 | [Integration Guide](docs/integration/how-to-plug-into-your-existing-ai-stack.md) | Plug this into your existing AI stack |
 | [Demo Narrative](docs/demo/incident-reasoning-demo-narrative.md) | Why this is different from chat — with real LLM output |
-| [Demo Script](docs/demo/incident-reasoning-demo-script.md) | Live walkthrough script |
-| [Memory Model](docs/concepts/memory.md) | What "memory" means in this framework |
+| [Memory Model](docs/concepts/memory.md) | What "memory" means in this system |
 
 ## Tests
 
 ```bash
-npm test    # 147 tests
+npm test    # 158 tests
 ```
 
 ---
 
-## What This Is (and Is Not)
+## Developer Orientation
 
-Most agent frameworks coordinate agents to **execute tasks** — call tools, run workflows, produce deliverables. This framework operates at a different layer: it structures how agents **arrive at and revise understanding**.
-
-| Agent orchestration systems | This framework |
-|----------------------------|---------------|
-| Coordinate agents to do things | Structure how agents reason together |
-| Focus on tools, actions, outcomes | Focus on interpretations, challenges, synthesis |
-| Task completes → done | Understanding evolves → revised, never "done" |
-| State is per-task | State persists across runs and sessions |
-
-This is not:
-- A chatbot framework
-- A workflow engine
-- A task automation system
-- An agent orchestration layer
-- AGI
-
-This is:
-A system for structuring multi-agent deliberation — where agents investigate a problem across cycles, challenge each other's reasoning, and produce a versioned institutional understanding that can be resumed and revised as new evidence arrives.
+| Directory | What's there |
+|-----------|-------------|
+| `core/` | Institutional logic — proceedings, interventions, obligations, synthesis, governance, memory, agenda |
+| `runtime/` | Cycle runner, delta detection, agent runtime, state management |
+| `storage/` | File-based persistence (JSON + JSONL, atomic writes) |
+| `adapters/` | LLM integration (OpenAI-compatible) |
+| `api/` | REST API (Express) |
+| `test/` | 158 tests — schemas, storage, engines, runtime, API, public contract |
+| `examples/` | Deterministic + LLM-powered examples |
+| `docs/` | Integration guide, demo narrative, memory model |
