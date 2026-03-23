@@ -20,6 +20,7 @@
 const { createStore } = require('./storage');
 const { createInstitution: _createEngines } = require('./core');
 const { AgentRuntime } = require('./runtime/agent-runtime');
+const { InstitutionContext } = require('./runtime/institution-context');
 const { CycleRunner, createCycleConfig } = require('./runtime/cycle-runner');
 const { StateManager } = require('./runtime/state');
 
@@ -259,7 +260,8 @@ class Institution {
       }
 
       // Build context for agent
-      const rt = new AgentRuntime(agentId, this._engines, this._store);
+      const ctx = new InstitutionContext(this._engines, this._store);
+      const rt = new AgentRuntime(agentId, ctx);
       const context = rt.readInstitutionState();
 
       // Let agent evaluate

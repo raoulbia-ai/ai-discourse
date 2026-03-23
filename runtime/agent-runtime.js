@@ -13,19 +13,28 @@
 
 const { DeltaDetector } = require('./delta');
 const { StateManager } = require('./state');
+const { InstitutionContext } = require('./institution-context');
 
 class AgentRuntime {
   /**
    * @param {string} agentId
-   * @param {import('../core').createInstitution} institution - All engines
-   * @param {import('../storage/file-store')} store
+   * @param {InstitutionContext|object} contextOrEngines - InstitutionContext or raw engines object
+   * @param {import('../storage/file-store')} [store] - Required if passing raw engines (legacy)
    */
-  constructor(agentId, institution, store) {
+  constructor(agentId, contextOrEngines, store) {
     this.agentId = agentId;
-    this.inst = institution;
-    this.store = store;
-    this.delta = new DeltaDetector(store);
-    this.state = new StateManager(store);
+
+    // Support both: new InstitutionContext form and legacy (engines, store) form
+    if (contextOrEngines instanceof InstitutionContext) {
+      this.inst = contextOrEngines;
+      this.store = contextOrEngines.store;
+    } else {
+      this.inst = contextOrEngines;
+      this.store = store;
+    }
+
+    this.delta = new DeltaDetector(this.store);
+    this.state = new StateManager(this.store);
   }
 
   /**
