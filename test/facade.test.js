@@ -347,4 +347,31 @@ describe('Public Contract', () => {
       assert.deepEqual(institution.getAgentIds(), ['a1', 'a2']);
     });
   });
+
+  describe('institutional chain enforcement', () => {
+    it('rejects runCycle with no active proceedings', async () => {
+      institution.registerAgent({ id: 'a', evaluate: async () => ({ interventions: [], obligations: [] }) });
+      await assert.rejects(
+        () => institution.runCycle(),
+        /No active proceedings/
+      );
+    });
+
+    it('returns chain status indicating synthesis is pending', async () => {
+      institution.openProceeding({ title: 'Chain Test' });
+      institution.registerAgent({ id: 'a', evaluate: async () => ({ interventions: [], obligations: [] }) });
+      const result = await institution.runCycle();
+      assert.equal(result.chain.synthesis_pending, true);
+      assert.ok(result.chain.proceedings > 0);
+      assert.equal(typeof result.chain.interventions, 'number');
+    });
+
+    it('chain includes proceedings count', async () => {
+      institution.openProceeding({ title: 'Chile Earthquake Impact' });
+      institution.openProceeding({ title: 'Sudan Conflict Analysis' });
+      institution.registerAgent({ id: 'a', evaluate: async () => ({ interventions: [], obligations: [] }) });
+      const result = await institution.runCycle();
+      assert.equal(result.chain.proceedings, 2);
+    });
+  });
 });
