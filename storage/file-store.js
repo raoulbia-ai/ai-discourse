@@ -257,6 +257,61 @@ class FileStore {
     const snapshots = this.getCycleSnapshots();
     return snapshots.length > 0 ? snapshots[snapshots.length - 1] : null;
   }
+
+  // --- Governance Actions (append-only log) ---
+
+  appendGovernanceAction(action) {
+    this._appendJSONL('governance-actions.jsonl', action);
+    return action;
+  }
+
+  readGovernanceActions() {
+    return this._readJSONL('governance-actions.jsonl');
+  }
+
+  writeGovernanceActions(actions) {
+    const filepath = this._path('governance-actions.jsonl');
+    const tmp = filepath + '.tmp';
+    const fs = require('fs');
+    fs.writeFileSync(tmp, actions.map(a => JSON.stringify(a)).join('\n') + '\n');
+    fs.renameSync(tmp, filepath);
+  }
+
+  // --- Agenda ---
+
+  getAgenda() {
+    return this._readJSON('agenda.json', {});
+  }
+
+  saveAgenda(data) {
+    this._writeJSON('agenda.json', data);
+  }
+
+  // --- Agent State ---
+
+  getAgentStates() {
+    return this._readJSON('agent-state.json', {});
+  }
+
+  saveAgentStates(data) {
+    this._writeJSON('agent-state.json', data);
+  }
+
+  // --- Agent Runs (append-only log) ---
+
+  appendAgentRun(record) {
+    this._appendJSONL('agent-runs.jsonl', record);
+  }
+
+  readAgentRuns() {
+    return this._readJSONL('agent-runs.jsonl');
+  }
+
+  // --- All Precedent Links (unfiltered) ---
+
+  getAllPrecedentLinks() {
+    return this._readJSON('precedent-links.json', { links: [] }).links;
+  }
 }
 
 module.exports = FileStore;

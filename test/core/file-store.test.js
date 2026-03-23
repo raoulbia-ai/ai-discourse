@@ -150,4 +150,65 @@ describe('FileStore', () => {
       assert.equal(store.getLatestCycle(), null);
     });
   });
+
+  describe('Governance Actions', () => {
+    it('appends and reads governance actions', () => {
+      store.appendGovernanceAction({ id: 'ga1', action: 'elevate', proceeding_id: 'p1' });
+      store.appendGovernanceAction({ id: 'ga2', action: 'cool', proceeding_id: 'p2' });
+      assert.equal(store.readGovernanceActions().length, 2);
+    });
+
+    it('rewrites all governance actions atomically', () => {
+      store.appendGovernanceAction({ id: 'ga1', expired: false });
+      store.appendGovernanceAction({ id: 'ga2', expired: false });
+      const actions = store.readGovernanceActions();
+      actions[0].expired = true;
+      store.writeGovernanceActions(actions);
+      const updated = store.readGovernanceActions();
+      assert.equal(updated[0].expired, true);
+      assert.equal(updated[1].expired, false);
+      assert.equal(updated.length, 2);
+    });
+  });
+
+  describe('Agenda', () => {
+    it('saves and retrieves agenda', () => {
+      store.saveAgenda({ agent_a: [{ proceeding_id: 'p1' }] });
+      const agenda = store.getAgenda();
+      assert.equal(agenda.agent_a.length, 1);
+    });
+
+    it('returns empty object when no agenda', () => {
+      assert.deepEqual(store.getAgenda(), {});
+    });
+  });
+
+  describe('Agent State', () => {
+    it('saves and retrieves agent states', () => {
+      store.saveAgentStates({ a1: { result: 'acted' }, a2: { result: 'skipped' } });
+      const states = store.getAgentStates();
+      assert.equal(states.a1.result, 'acted');
+      assert.equal(states.a2.result, 'skipped');
+    });
+
+    it('returns empty object when no states', () => {
+      assert.deepEqual(store.getAgentStates(), {});
+    });
+  });
+
+  describe('Agent Runs', () => {
+    it('appends and reads agent runs', () => {
+      store.appendAgentRun({ agent: 'a1', result: 'acted' });
+      store.appendAgentRun({ agent: 'a2', result: 'skipped' });
+      assert.equal(store.readAgentRuns().length, 2);
+    });
+  });
+
+  describe('All Precedent Links', () => {
+    it('returns all links unfiltered', () => {
+      store.savePrecedentLink({ id: 'l1', source_proceeding_id: 'p1', target_proceeding_id: 'p2', relation: 'analog', summary: 't' });
+      store.savePrecedentLink({ id: 'l2', source_proceeding_id: 'p3', target_proceeding_id: 'p4', relation: 'contradicts', summary: 't' });
+      assert.equal(store.getAllPrecedentLinks().length, 2);
+    });
+  });
 });
