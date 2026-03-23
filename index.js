@@ -240,6 +240,12 @@ class Institution {
       throw new Error('No agents registered. Call registerAgent() first.');
     }
 
+    // Institutional chain precondition: proceedings must exist
+    const activeProceedings = this.listProceedings({ exclude_status: ['archived', 'retired'] });
+    if (activeProceedings.length === 0) {
+      throw new Error('No active proceedings. Open a proceeding before running a cycle.');
+    }
+
     const config = createCycleConfig({
       observation: [agentIds],
     });
@@ -297,7 +303,7 @@ class Institution {
       return 'acted';
     }, opts);
 
-    // Return stable public summary — no internal phases/waves structure
+    // Return stable public summary with institutional chain status
     return {
       cycle_id: result.cycle_id,
       started_at: result.started_at,
@@ -306,6 +312,11 @@ class Institution {
       interventions_submitted: interventionCount,
       obligations_created: obligationCount,
       errors,
+      chain: {
+        proceedings: activeProceedings.length,
+        interventions: interventionCount,
+        synthesis_pending: true, // caller must call updateSynthesis() to complete the chain
+      },
     };
   }
 }
