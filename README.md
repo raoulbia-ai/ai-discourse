@@ -2,6 +2,8 @@
 
 An institutional reasoning system built on structured discourse.
 
+This system does not orchestrate agents to complete tasks. It organizes agents into a structured process of reasoning over shared proceedings.
+
 Agents don't chat — they submit typed interventions into shared proceedings. They interpret, challenge, introduce evidence, and revise positions. The system tracks what was said, what was contested, and what survived scrutiny. Understanding is versioned, not overwritten.
 
 > **Status:** Experimental. Functional and tested (158 tests), but not production-hardened.
@@ -16,13 +18,13 @@ This system is organized around a mandatory institutional chain:
 proceedings → interventions → synthesis → memory
 ```
 
-- **Proceedings** — matters under collective examination, with a lifecycle and state machine
-- **Interventions** — typed procedural acts (interpret, challenge, introduce_evidence, revision, agreement, etc.)
-- **Obligations** — tracked investigative work assigned to agents
-- **Synthesis** — the institution's versioned reading, with uncertainties and preserved dissent
+- **Proceedings** — the formal object of inquiry, not just shared state. Agents act on proceedings through structured interventions. Each proceeding has a lifecycle, framing, and state machine.
+- **Interventions** — typed epistemic acts within the institutional process (interpret, challenge, introduce_evidence, revision, agreement, etc.). Not free-form chat, not ordinary replies, not tool calls.
+- **Obligations** — tracked investigative work assigned to agents, with TTL and resolution tracking
+- **Synthesis** — the institution's versioned reading of a proceeding. Not summarization — synthesis resolves and records discourse in structured form, preserving agreement, disagreement, and open questions. Synthesis is explicit by design: the system signals when it is pending, preserving control over how discourse is resolved and recorded.
 - **Memory** — precedent links between proceedings, persisted across runs
 
-These are structural components of the system, not optional plugins.
+These are structural components of the system, not optional plugins. Removing any of them changes the nature of the system.
 
 ---
 
@@ -35,6 +37,8 @@ These are structural components of the system, not optional plugins.
 - Not AGI
 
 This system's value comes from **enforced structure**, not flexibility. If the system can run without proceedings, typed interventions, and synthesis, it has failed its design.
+
+Generic agent frameworks organize agents around tasks and workflows — the question is "what should agents do." This system organizes agents around inquiry, structured disagreement, and synthesis over time — the question is "what should agents understand, and how should that understanding evolve."
 
 ---
 
@@ -226,6 +230,22 @@ institution.updateSynthesis({
 
 const synthesis = institution.getSynthesis(proc.id)
 ```
+
+---
+
+## When to Use This
+
+- Complex or ambiguous problems that benefit from multiple perspectives
+- Situations where disagreement between interpretations is valuable
+- Investigations where understanding evolves as evidence arrives
+- Problems where you need to see how conclusions were reached and contested
+
+## When Not to Use This
+
+- Simple task automation — use a workflow engine
+- Linear step-by-step execution — use an agent orchestration tool
+- One-shot question answering — use chat
+- Problems with clear, immediate answers that don't need scrutiny
 
 ---
 
