@@ -23,7 +23,7 @@ class AgendaEngine {
    * Get an agent's watchlist.
    */
   getWatchlist(agentId) {
-    const data = this.store._readJSON('agenda.json', {});
+    const data = this.store.getAgenda();
     return data[agentId] || [];
   }
 
@@ -31,7 +31,7 @@ class AgendaEngine {
    * Add a proceeding to an agent's watchlist.
    */
   watch(agentId, proceedingId) {
-    const data = this.store._readJSON('agenda.json', {});
+    const data = this.store.getAgenda();
     if (!data[agentId]) data[agentId] = [];
 
     if (data[agentId].find(e => e.proceeding_id === proceedingId)) {
@@ -43,7 +43,7 @@ class AgendaEngine {
     }
 
     data[agentId].push({ proceeding_id: proceedingId, added_at: new Date().toISOString() });
-    this.store._writeJSON('agenda.json', data);
+    this.store.saveAgenda(data);
     return { status: 'watching', agent_id: agentId, proceeding_id: proceedingId };
   }
 
@@ -51,7 +51,7 @@ class AgendaEngine {
    * Remove a proceeding from an agent's watchlist.
    */
   unwatch(agentId, proceedingId) {
-    const data = this.store._readJSON('agenda.json', {});
+    const data = this.store.getAgenda();
     if (!data[agentId]) return { status: 'not_watching', agent_id: agentId, proceeding_id: proceedingId };
 
     const before = data[agentId].length;
@@ -60,7 +60,7 @@ class AgendaEngine {
       return { status: 'not_watching', agent_id: agentId, proceeding_id: proceedingId };
     }
 
-    this.store._writeJSON('agenda.json', data);
+    this.store.saveAgenda(data);
     return { status: 'unwatched', agent_id: agentId, proceeding_id: proceedingId };
   }
 
@@ -68,14 +68,14 @@ class AgendaEngine {
    * Get all watchlists.
    */
   listAll() {
-    return this.store._readJSON('agenda.json', {});
+    return this.store.getAgenda();
   }
 
   /**
    * Prune resolved/archived proceedings from all watchlists.
    */
   prune() {
-    const data = this.store._readJSON('agenda.json', {});
+    const data = this.store.getAgenda();
     const proceedings = this.store.getProceedings();
     const removableIds = new Set(
       proceedings.filter(p => ['archived', 'retired', 'settled'].includes(p.status)).map(p => p.id)
@@ -88,7 +88,7 @@ class AgendaEngine {
       pruned += before - data[agentId].length;
     }
 
-    this.store._writeJSON('agenda.json', data);
+    this.store.saveAgenda(data);
     return { status: 'pruned', removed: pruned };
   }
 

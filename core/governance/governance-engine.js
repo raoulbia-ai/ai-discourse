@@ -134,8 +134,7 @@ class GovernanceEngine {
       expired: false,
     };
 
-    // Store as a governance action in a JSONL log
-    this.store._appendJSONL('governance-actions.jsonl', record);
+    this.store.appendGovernanceAction(record);
     return record;
   }
 
@@ -143,7 +142,7 @@ class GovernanceEngine {
    * Get active (non-expired) governance actions.
    */
   getActiveActions() {
-    const actions = this.store._readJSONL('governance-actions.jsonl');
+    const actions = this.store.readGovernanceActions();
     const now = new Date();
     return actions.filter(a => !a.expired && new Date(a.expires_at) > now);
   }
@@ -152,7 +151,7 @@ class GovernanceEngine {
    * Expire past-due governance actions.
    */
   expireActions() {
-    const actions = this.store._readJSONL('governance-actions.jsonl');
+    const actions = this.store.readGovernanceActions();
     const now = new Date();
     let count = 0;
 
@@ -165,10 +164,7 @@ class GovernanceEngine {
     });
 
     if (count > 0) {
-      // Rewrite the file
-      const filepath = this.store._path('governance-actions.jsonl');
-      const fs = require('fs');
-      fs.writeFileSync(filepath, updated.map(a => JSON.stringify(a)).join('\n') + '\n');
+      this.store.writeGovernanceActions(updated);
     }
     return count;
   }

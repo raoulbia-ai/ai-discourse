@@ -20,7 +20,7 @@ class StateManager {
    * Get the current state for an agent.
    */
   getAgentState(agentId) {
-    const allState = this.store._readJSON('agent-state.json', {});
+    const allState = this.store.getAgentStates();
     return allState[agentId] || null;
   }
 
@@ -28,7 +28,7 @@ class StateManager {
    * Get state for all agents.
    */
   getAllStates() {
-    return this.store._readJSON('agent-state.json', {});
+    return this.store.getAgentStates();
   }
 
   /**
@@ -38,7 +38,7 @@ class StateManager {
    * @param {{ result: string, snapshot_hash?: string, comms_offset?: number, proceedings_hash?: string }} update
    */
   updateAgentState(agentId, update) {
-    const allState = this.store._readJSON('agent-state.json', {});
+    const allState = this.store.getAgentStates();
     const prev = allState[agentId] || {};
     const now = new Date().toISOString();
 
@@ -51,10 +51,10 @@ class StateManager {
       result: update.result,
     };
 
-    this.store._writeJSON('agent-state.json', allState);
+    this.store.saveAgentStates(allState);
 
     // Append to run audit log
-    this.store._appendJSONL('agent-runs.jsonl', {
+    this.store.appendAgentRun({
       timestamp: now,
       agent: agentId,
       result: update.result,
@@ -67,7 +67,7 @@ class StateManager {
    * Get the audit log of all agent runs.
    */
   getRunLog() {
-    return this.store._readJSONL('agent-runs.jsonl');
+    return this.store.readAgentRuns();
   }
 }
 

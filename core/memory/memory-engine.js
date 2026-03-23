@@ -61,7 +61,7 @@ class MemoryEngine {
    */
   byRelation(relation) {
     // Read all links and filter
-    const allLinks = this.store._readJSON('precedent-links.json', { links: [] }).links;
+    const allLinks = this.store.getAllPrecedentLinks();
     return allLinks.filter(l => l.relation === relation);
   }
 }
