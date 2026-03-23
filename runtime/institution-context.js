@@ -11,6 +11,7 @@
 
 class InstitutionContext {
   constructor(engines, store) {
+    // Public: institutional engines (the abstraction boundary)
     this.proceedings = engines.proceedings;
     this.interventions = engines.interventions;
     this.obligations = engines.obligations;
@@ -18,7 +19,9 @@ class InstitutionContext {
     this.governance = engines.governance;
     this.memory = engines.memory;
     this.agenda = engines.agenda;
-    this.store = store;
+    // Internal: store for signal reads and delta detection.
+    // Not part of the public context interface — runtime internals only.
+    this._store = store;
   }
 }
 

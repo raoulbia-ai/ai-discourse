@@ -7,19 +7,25 @@ const crypto = require('crypto');
  *
  * Change detection via content hashing of signals, interventions,
  * proceedings, and obligations relevant to the agent.
+ *
+ * Accepts an InstitutionContext (preferred) or raw store (legacy).
+ * Uses engine methods where available, falling back to _store for signals.
  */
 
 class DeltaDetector {
   /**
-   * @param {import('../storage/file-store')} store
+   * @param {import('./institution-context').InstitutionContext|object} contextOrStore
    */
-  constructor(store) {
-    this.store = store;
+  constructor(contextOrStore) {
+    // Accept context (has engines) or raw store (legacy)
+    if (contextOrStore._store) {
+      this.context = contextOrStore;
+    } else {
+      // Legacy: raw store passed directly
+      this.context = { _store: contextOrStore };
+    }
   }
 
-  /**
-   * Hash a set of records for comparison.
-   */
   _hashRecords(records) {
     const hash = crypto.createHash('sha256');
     for (const r of records) {
@@ -30,31 +36,29 @@ class DeltaDetector {
 
   /**
    * Check whether an agent has material changes since its last run.
-   *
-   * @param {string} agentId
-   * @param {object} lastRunState - The agent's state from last cycle
-   *   { snapshot_hash, last_seen_comms_offset, last_run }
-   * @returns {{ changed: boolean, reason: string, snapshot_hash: string, comms_offset: number, mentions: object[], open_obligations: object[] }}
    */
   check(agentId, lastRunState = {}) {
     const reasons = [];
+    const ctx = this.context;
 
-    // 1. Hash all current signals
-    const signals = this.store.readSignals();
+    // 1. Hash all current signals (no engine — use store)
+    const signals = ctx._store.readSignals();
     const currentSignalHash = this._hashRecords(signals);
     if (currentSignalHash !== (lastRunState.snapshot_hash || 'empty')) {
       reasons.push('signals changed');
     }
 
-    // 2. Check for new interventions since last offset
-    const allInterventions = this.store.readInterventions();
+    // 2. Check for new interventions since last offset (use engine if available)
+    const allInterventions = ctx.interventions
+      ? ctx.interventions.list()
+      : ctx._store.readInterventions();
     const lastOffset = lastRunState.last_seen_comms_offset || 0;
     const newInterventions = allInterventions.slice(lastOffset);
     if (newInterventions.length > 0) {
       reasons.push(`${newInterventions.length} new intervention(s)`);
     }
 
-    // 3. Check for mentions (interventions referencing this agent)
+    // 3. Check for mentions
     const mentions = newInterventions.filter(i =>
       i.agent_id !== agentId &&
       JSON.stringify(i).toUpperCase().includes(agentId.toUpperCase())
@@ -63,16 +67,18 @@ class DeltaDetector {
       reasons.push(`${mentions.length} mention(s)`);
     }
 
-    // 4. Check for open obligations assigned to this agent
-    const openObligations = this.store.getObligations().filter(
-      o => o.assigned_agent_id === agentId && o.status === 'open'
-    );
+    // 4. Check for open obligations (use engine if available)
+    const openObligations = ctx.obligations
+      ? ctx.obligations.forAgent(agentId)
+      : ctx._store.getObligations().filter(o => o.assigned_agent_id === agentId && o.status === 'open');
     if (openObligations.length > 0) {
       reasons.push(`${openObligations.length} open obligation(s)`);
     }
 
-    // 5. Check proceedings changes
-    const proceedings = this.store.getProceedings();
+    // 5. Check proceedings changes (use engine if available)
+    const proceedings = ctx.proceedings
+      ? ctx.proceedings.list()
+      : ctx._store.getProceedings();
     const procHash = this._hashRecords(proceedings);
     if (procHash !== (lastRunState.proceedings_hash || 'empty')) {
       reasons.push('proceedings changed');

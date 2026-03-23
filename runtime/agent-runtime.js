@@ -27,19 +27,18 @@ class AgentRuntime {
     // Support both: new InstitutionContext form and legacy (engines, store) form
     if (contextOrEngines instanceof InstitutionContext) {
       this.inst = contextOrEngines;
-      this.store = contextOrEngines.store;
+      this.delta = new DeltaDetector(contextOrEngines);
+      this.state = new StateManager(contextOrEngines._store);
     } else {
+      // Legacy form: (agentId, engines, store)
       this.inst = contextOrEngines;
-      this.store = store;
+      this.delta = new DeltaDetector({ _store: store, ...contextOrEngines });
+      this.state = new StateManager(store);
     }
-
-    this.delta = new DeltaDetector(this.store);
-    this.state = new StateManager(this.store);
   }
 
   /**
    * Check if this agent should act (delta-gating).
-   * Returns { changed, reason, ... } or null if no changes.
    */
   shouldAct() {
     const lastState = this.state.getAgentState(this.agentId) || {};
@@ -48,39 +47,30 @@ class AgentRuntime {
 
   /**
    * Operation 1: Read institution state relevant to this agent.
-   *
-   * Returns proceedings, synthesis, obligations, agenda, and governance actions.
    */
   readInstitutionState() {
-    // Get agent's watchlist
     const watchlist = this.inst.agenda.getWatchlist(this.agentId);
     const watchedProceedingIds = watchlist.map(w => w.proceeding_id);
 
-    // Get all active proceedings
     const allProceedings = this.inst.proceedings.list({
       exclude_status: ['archived', 'retired'],
     });
 
-    // Get watched proceedings with full data
     const watchedProceedings = allProceedings.filter(p => watchedProceedingIds.includes(p.id));
 
-    // Get latest synthesis for watched proceedings
     const syntheses = {};
     for (const p of watchedProceedings) {
       const syn = this.inst.synthesis.latest(p.id);
       if (syn) syntheses[p.id] = syn;
     }
 
-    // Get open obligations for this agent
     const obligations = this.inst.obligations.forAgent(this.agentId);
-
-    // Get active governance actions
     const governanceActions = this.inst.governance.getActiveActions();
 
-    // Get recent interventions (last offset)
+    // Use intervention engine instead of direct store access
     const lastState = this.state.getAgentState(this.agentId) || {};
     const lastOffset = lastState.last_seen_comms_offset || 0;
-    const recentInterventions = this.store.readInterventions({ offset: lastOffset });
+    const recentInterventions = this.inst.interventions.list({ offset: lastOffset });
 
     return {
       proceedings: allProceedings,
