@@ -128,7 +128,10 @@ Return ONLY valid JSON. No markdown, no explanation outside the JSON.`;
   // Recent interventions
   if (context.recent_interventions && context.recent_interventions.length > 0) {
     parts.push('## Recent Interventions\n');
+    parts.push('IMPORTANT: When submitting challenge, agreement, or revision interventions,');
+    parts.push('use the exact intervention ID shown below (e.g. int_...) in the "targets" array.\n');
     for (const int of context.recent_interventions) {
+      parts.push(`ID: ${int.id}`);
       parts.push(`[${int.agent_id}] ${int.type} on ${int.proceeding_id}: ${int.summary}`);
       parts.push(`  ${int.content}`);
       if (int.confidence) parts.push(`  Confidence: ${int.confidence}`);
