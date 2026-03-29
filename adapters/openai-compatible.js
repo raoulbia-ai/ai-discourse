@@ -137,6 +137,54 @@ Return ONLY valid JSON. No markdown, no explanation outside the JSON.`;
       if (int.confidence) parts.push(`  Confidence: ${int.confidence}`);
       parts.push('');
     }
+
+    // Pending challenges: identify challenges targeting THIS agent's interventions
+    // that have not yet received a revision or agreement response
+    const myInterventionIds = new Set(
+      context.recent_interventions
+        .filter(i => i.agent_id === agentId)
+        .map(i => i.id)
+    );
+    const challengesAtMe = context.recent_interventions.filter(i =>
+      i.type === 'challenge' &&
+      i.agent_id !== agentId &&
+      i.targets?.some(t => myInterventionIds.has(t))
+    );
+    // Check which challenges have already been addressed (revision or agreement targeting the challenge)
+    const myResponses = context.recent_interventions.filter(i =>
+      i.agent_id === agentId &&
+      (i.type === 'revision' || i.type === 'agreement')
+    );
+    const addressedChallengeIds = new Set();
+    for (const resp of myResponses) {
+      for (const t of (resp.targets || [])) {
+        // A response addresses a challenge if it targets the challenge itself
+        // or targets the same intervention the challenge targeted
+        if (challengesAtMe.some(c => c.id === t)) addressedChallengeIds.add(t);
+      }
+    }
+    const pendingChallenges = challengesAtMe.filter(c => !addressedChallengeIds.has(c.id));
+
+    if (pendingChallenges.length > 0) {
+      parts.push('## PENDING CHALLENGES AGAINST YOUR CLAIMS\n');
+      parts.push('The following challenges target YOUR prior interventions and have NOT been addressed.');
+      parts.push('You MUST respond to each one. For each challenge, do ONE of:');
+      parts.push('  1. FILE A REVISION (type: "revision") — update your position, stating what you are changing and why.');
+      parts.push('     Your revision must contain NEW reasoning, not just restate the challenge.');
+      parts.push('     Include a revised confidence score.');
+      parts.push('  2. FILE A REBUTTAL (type: "interpret") — defend your original claim with additional evidence or reasoning.');
+      parts.push('     Explain specifically why the challenge does not change your position.');
+      parts.push('  3. FILE A CONCESSION (type: "agreement") — agree that the challenger is correct.');
+      parts.push('Do NOT ignore these challenges. Do NOT simply repeat what the challenger said.\n');
+      for (const c of pendingChallenges) {
+        const targetedClaim = context.recent_interventions.find(i => c.targets?.includes(i.id) && i.agent_id === agentId);
+        parts.push(`CHALLENGE ${c.id} from [${c.agent_id}]:`);
+        parts.push(`  Challenges your claim: "${targetedClaim?.summary || 'unknown claim'}"`);
+        parts.push(`  Challenge: ${c.summary}`);
+        parts.push(`  ${c.content.slice(0, 300)}`);
+        parts.push('');
+      }
+    }
   }
 
   // Syntheses
